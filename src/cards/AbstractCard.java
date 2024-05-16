@@ -40,14 +40,6 @@ public abstract class AbstractCard implements Card {
 
     @Override
     public boolean execute(Player player) {
-        for (Action prerequisite : prerequisites) {
-            if (!prerequisite.checkPrerequisites(player)) {
-                return false; // 선행 조건을 통과하지 못한 경우 실행 중단
-            }
-        }
-        for (Action action : actions) {
-            action.execute(player);
-        }
         return true;
     }
 }
