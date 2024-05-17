@@ -1,8 +1,11 @@
 package cards.common;
 
+import cards.majorimprovement.MajorImprovementCard;
 import models.FamilyMember;
 import models.Player;
 
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public interface Card {
@@ -44,6 +47,18 @@ public interface Card {
             player.addResource(entry.getKey(), entry.getValue());
         }
     }
+
+    // 자원 누적 메서드
+    default void accumulate() {
+        Map<String, Integer> accumulatedResources = new HashMap<>();
+        for (Map.Entry<String, Integer> entry : accumulatedResources.entrySet()) {
+            accumulatedResources.put(entry.getKey(), accumulatedResources.getOrDefault(entry.getKey(), 0) + entry.getValue());
+        }
+    }
+
+
+    // 카드 효과 변경 메서드
+    void modifyEffect(String effectType, Object value);
 
     // 3. 직업 카드 사용
     default void useOccupationCard(Player player) {
@@ -96,20 +111,25 @@ public interface Card {
 //        player.getPlayerBoard().renovateRooms();
     }
 
-    // 13. 자원 체크
-    default boolean checkResources(Player player, Map<String, Integer> requiredResources) {
-        for (Map.Entry<String, Integer> entry : requiredResources.entrySet()) {
+    // 자원 체크 및 지불 메서드
+    default boolean checkAndPayResources(Player player, Map<String, Integer> resources) {
+        for (Map.Entry<String, Integer> entry : resources.entrySet()) {
             if (player.getResource(entry.getKey()) < entry.getValue()) {
-                return false;
+                return false; // 자원이 부족하면 false 반환
             }
         }
-        return true;
-    }
-
-    // 14. 자원 지불
-    default void payResources(Player player, Map<String, Integer> resources) {
+        // 자원이 충분하면 지불
         for (Map.Entry<String, Integer> entry : resources.entrySet()) {
             player.addResource(entry.getKey(), -entry.getValue());
         }
+        return true; // 성공적으로 지불하면 true 반환
+    }
+
+    // 새로운 빵굽기 트리거 메서드 추가
+    default void triggerBreadBaking(Player player) {
+        // 플레이어가 소유한 주요 설비 카드 중 빵굽기 기능이 있는 카드를 가져옵니다.
+        List<MajorImprovementCard> breadBakingCards = player.getBreadBakingCards();
+        // 프론트엔드에 빵굽기 가능한 카드 목록을 전송합니다.
+        // WebSocketService.sendMessageToClient(player.getId(), "breadBakingCards", breadBakingCards);
     }
 }

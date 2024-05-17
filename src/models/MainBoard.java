@@ -31,12 +31,12 @@ public class MainBoard {
     public void accumulateResources() {
        for (Card card : actionCards) {
             if (card instanceof ActionCard && ((ActionCard) card).isAccumulative()) {
-                // 누적 자원 획득 로직 추가
+                card.accumulate();
             }
         }
         for (Card card : roundCards) {
-            if (card instanceof RoundCard && ((RoundCard) card).isAccumulative()) {
-                // 누적 자원 획득 로직 추가
+            if (card instanceof RoundCard && ((RoundCard) card).isAccumulative() && ((RoundCard) card).isRevealed()) {
+                card.accumulate();
             }
         }
     }
@@ -48,6 +48,13 @@ public class MainBoard {
     }
     public List<Card> getMajorImprovementCards() {
         return majorImprovementCards;
+    }
+
+    public List<Card> getAllCards() {
+        List<Card> allCards = new ArrayList<>();
+        allCards.addAll(actionCards);
+        allCards.addAll(roundCards);
+        return allCards;
     }
 
 //    public void removeMajorImprovementCard(MajorImprovementCard card) {

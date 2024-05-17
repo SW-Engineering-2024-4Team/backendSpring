@@ -1,9 +1,17 @@
 package models;
 
+import cards.common.ExchangeTiming;
+import cards.common.ExchangeableCard;
+import cards.majorimprovement.MajorImprovementCard;
+import cards.minorimprovement.MinorImprovementCard;
+import cards.occupation.OccupationCard;
 import cards.common.Card;
+import controllers.GameController;
+
 import java.util.*;
 
 public class Player {
+    private final ArrayList<Card> majorImprovementCards;
     private String id;
     private String name;
     private Map<String, Integer> resources;
@@ -13,16 +21,19 @@ public class Player {
     private PlayerBoard playerBoard;
     private int score;
     private boolean isFirstPlayer;
+    private GameController gameController;
 
-    public Player(String id, String name) {
+    public Player(String id, String name, GameController gameController) {
         this.id = id;
         this.name = name;
         this.resources = new HashMap<>();
         this.occupationCards = new ArrayList<>();
         this.minorImprovementCards = new ArrayList<>();
+        this.majorImprovementCards = new ArrayList<>();
         this.activeCards = new ArrayList<>();
         this.playerBoard = new PlayerBoard();
-        this.isFirstPlayer = false; // 기본값으로 설정
+        this.isFirstPlayer = false;
+        this.gameController = gameController;
         initializeResources();
     }
 
@@ -138,11 +149,76 @@ public class Player {
     }
 
     public boolean chooseOption() {
-        // 플레이어가 선택하는 로직 구현
-        // 예시로 랜덤하게 선택하는 로직 // 프론트엔드와 통신
         return new Random().nextBoolean();
     }
 
+    public GameController getGameController() {
+        return gameController;
+    }
 
-    // 기타 메서드
+    public void moveToActiveCards(Card card) {
+        if (card instanceof MajorImprovementCard) {
+            majorImprovementCards.remove(card);
+        } else if (card instanceof OccupationCard) {
+            occupationCards.remove(card);
+        } else if (card instanceof MinorImprovementCard) {
+            minorImprovementCards.remove(card);
+        }
+        activeCards.add(card);
+    }
+
+
+    public List<ExchangeableCard> getExchangeableCards(ExchangeTiming timing) {
+        List<ExchangeableCard> exchangeableCards = new ArrayList<>();
+        for (Card card : activeCards) {
+            if (card instanceof ExchangeableCard) {
+                ExchangeableCard exchangeableCard = (ExchangeableCard) card;
+                if (exchangeableCard.hasExchangeResourceFunction() && (exchangeableCard.getExchangeTiming() == timing || exchangeableCard.getExchangeTiming() == ExchangeTiming.ANYTIME)) {
+                    exchangeableCards.add(exchangeableCard);
+                }
+            }
+        }
+        return exchangeableCards;
+    }
+
+    public void executeExchange(ExchangeableCard card, String fromResource, String toResource, int amount) {
+        if (activeCards.contains(card)) {
+            card.exchangeResources(this, fromResource, toResource, amount);
+        }
+    }
+
+    public void useMinorImprovementCard(MinorImprovementCard card) {
+        if (card.checkCondition(this)) {
+            card.payCost(this);
+            card.applyEffect(this);
+            moveToActiveCards(card);
+        }
+    }
+
+    public void useMajorImprovementCard(MajorImprovementCard card) {
+        card.payCost(this);
+        card.applyEffect(this);
+        moveToActiveCards(card);
+    }
+
+    public List<MajorImprovementCard> getBreadBakingCards() {
+        List<MajorImprovementCard> breadBakingCards = new ArrayList<>();
+        for (Card card : activeCards) {
+            if (card instanceof MajorImprovementCard && ((MajorImprovementCard) card).hasBreadBakingFunction()) {
+                breadBakingCards.add((MajorImprovementCard) card);
+            }
+        }
+        return breadBakingCards;
+    }
+
+    public void bakeBread(MajorImprovementCard card, Map<String, Integer> exchangeRate) {
+        if (activeCards.contains(card)) {
+            card.bakeBread(this, exchangeRate);
+        }
+    }
+
+
+
+
+
 }

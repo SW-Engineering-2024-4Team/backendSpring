@@ -1,6 +1,9 @@
 package controllers;
 
 import cards.common.Card;
+import cards.common.ExchangeTiming;
+import cards.common.ExchangeableCard;
+import cards.majorimprovement.MajorImprovementCard;
 import models.*;
 import java.util.*;
 
@@ -95,6 +98,10 @@ public class GameController {
             for (Player player : turnOrder) {
                 if (player.hasAvailableFamilyMembers()) {
                     playerTurn(player.getId());
+                    // 라운드 진행 단계에서 교환 가능 카드 목록 제공
+                    List<ExchangeableCard> exchangeableCards = player.getExchangeableCards(ExchangeTiming.ANYTIME);
+                    // 프론트엔드에 교환 가능 카드 목록 제공 로직 필요
+                    // WebSocketService.sendMessageToClient(player.getId(), "exchangeableCards", exchangeableCards);
                 }
             }
             roundFinished = checkIfRoundFinished();
@@ -105,7 +112,16 @@ public class GameController {
     private void playerTurn(String playerID) {
         Player player = getPlayerByID(playerID);
         if (player != null) {
+            // 현재 턴인 플레이어 정보를 프론트엔드에 전달
             // WebSocketService.sendMessageToClient(playerID, "Your turn to place a family member.");
+
+            // 플레이어의 가족 구성원 배치와 카드 실행 로직
+            // 좌표와 카드 정보는 프론트엔드에서 제공
+            // int x = ...; // 프론트엔드에서 받은 x 좌표
+            // int y = ...; // 프론트엔드에서 받은 y 좌표
+            // Card card = ...; // 프론트엔드에서 받은 카드 객체
+
+            // player.placeFamilyMember(x, y, card);
         }
     }
 
@@ -138,6 +154,10 @@ public class GameController {
                     }
                 }
             }
+            // 농장 단계에서 교환 가능 카드 목록 제공
+            List<ExchangeableCard> exchangeableCards = player.getExchangeableCards(ExchangeTiming.HARVEST);
+            // 프론트엔드에 교환 가능 카드 목록 제공 로직 필요
+            // WebSocketService.sendMessageToClient(player.getId(), "exchangeableCards", exchangeableCards);
         }
         notifyPlayers("농장 단계 완료. 가족 먹여살리기 단계로 진행하세요.");
     }
@@ -178,9 +198,45 @@ public class GameController {
                     newAnimals.add(new Animal(entry.getKey()));
                 }
             }
+            // 가축 번식 단계에서 교환 가능 카드 목록 제공
+            List<ExchangeableCard> exchangeableCards = player.getExchangeableCards(ExchangeTiming.HARVEST);
+            // 프론트엔드에 교환 가능 카드 목록 제공 로직 필요
+            // WebSocketService.sendMessageToClient(player.getId(), "exchangeableCards", exchangeableCards);
+
         }
         notifyPlayers("가축 번식 단계 완료. 수확 단계 종료.");
     }
+
+    public void executeExchange(String playerID, String cardID, String fromResource, String toResource, int amount) {
+        Player player = getPlayerByID(playerID);
+        if (player != null) {
+            Card card = getCardByID(cardID);
+            if (card instanceof ExchangeableCard) {
+                player.executeExchange((ExchangeableCard) card, fromResource, toResource, amount);
+            }
+        }
+    }
+
+    public void purchaseMajorImprovementCard(String playerID, String cardID) {
+        Player player = getPlayerByID(playerID);
+        if (player != null) {
+            Card card = getCardByID(cardID);
+            if (card instanceof MajorImprovementCard) {
+                player.useMajorImprovementCard((MajorImprovementCard) card);
+            }
+        }
+    }
+
+    public void bakeBread(String playerID, String cardID, Map<String, Integer> exchangeRate) {
+        Player player = getPlayerByID(playerID);
+        if (player != null) {
+            MajorImprovementCard card = (MajorImprovementCard) getCardByID(cardID);
+            if (card != null && card.hasBreadBakingFunction()) {
+                player.bakeBread(card, exchangeRate);
+            }
+        }
+    }
+
 
     private Map<String, Integer> countAnimals(Player player) {
         Map<String, Integer> animalCounts = new HashMap<>();
@@ -263,5 +319,9 @@ public class GameController {
 
     private void notifyPlayers(String message) {
         // 프론트엔드에 메시지를 보내는 로직 필요
+    }
+
+    public MainBoard getMainBoard() {
+        return mainBoard;
     }
 }
