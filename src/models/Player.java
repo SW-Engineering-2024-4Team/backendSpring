@@ -1,6 +1,8 @@
 package models;
 
 import cards.Card;
+import cards.MajorImprovementCard;
+
 import java.util.*;
 
 public class Player {
@@ -134,4 +136,9 @@ public class Player {
             }
         }
     }
+
+    public void exchangeResources(MajorImprovementCard card, String fromResource, String toResource, int amount) {
+        card.exchangeResources(this, fromResource, toResource, amount);
+    }
+
 }

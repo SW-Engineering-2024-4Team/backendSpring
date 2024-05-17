@@ -3,6 +3,7 @@ package models;
 import actions.Action;
 import cards.ActionCard;
 import cards.Card;
+import cards.MajorImprovementCard;
 import cards.RoundCard;
 
 import java.util.List;
@@ -43,6 +44,10 @@ public class MainBoard {
     }
     public List<Card> getMajorImprovementCards() {
         return majorImprovementCards;
+    }
+
+    public void removeMajorImprovementCard(MajorImprovementCard card) {
+        majorImprovementCards.remove(card);
     }
 
 
