@@ -1,24 +1,25 @@
 package controllers;
 
-import actions.Action;
-import actions.GainResourceAction;
-import actions.UseOccupationCardAction;
-import cards.Card;
-import cards.CardFactory;
+import cards.common.Card;
+import cards.common.CardFactory;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Map;
+import java.util.*;
 
 public class CardController {
     private static CardController instance;
-    private Map<String, List<Card>> decks;
+    private List<Card> actionCards;
+    private List<Card> roundCards;
+    private List<Card> minorImprovementCards;
+    private List<Card> occupationCards;
+    private List<Card> majorImprovementCards;
 
     private CardController() {
-        decks = new HashMap<>();
-        initializeCards();
+        this.actionCards = new ArrayList<>();
+        this.roundCards = new ArrayList<>();
+        this.minorImprovementCards = new ArrayList<>();
+        this.occupationCards = new ArrayList<>();
+        this.majorImprovementCards = new ArrayList<>();
+        initializeDecks();
     }
 
     public static CardController getInstance() {
@@ -28,40 +29,71 @@ public class CardController {
         return instance;
     }
 
-    public List<Card> getDeck(String type) {
-        return decks.get(type);
-    }
-
-    public void addCardToDeck(String type, Card card) {
-        if (!decks.containsKey(type)) {
-            decks.put(type, new ArrayList<>());
-        }
-        decks.get(type).add(card);
-    }
-
-    public List<Card> shuffleDeck(List<Card> deck) {
-        Collections.shuffle(deck);
-        return deck;
-    }
-
-    private void initializeCards() {
+    private void initializeDecks() {
         CardFactory cardFactory = new CardFactory();
 
-        // 행동 카드 생성
-        Card actionCard1 = cardFactory.createCard("action");
-        List<Action> actionsForActionCard1 = new ArrayList<>();
-        actionsForActionCard1.add(new GainResourceAction("wood", 1));
-        actionsForActionCard1.add(new UseOccupationCardAction());
-        cardFactory.addActionsToCard(actionCard1, actionsForActionCard1);
-        addCardToDeck("actionCards", actionCard1);
+        for (int i = 0; i < 30; i++) {
+            actionCards.add(cardFactory.createCard("ActionCard", 0));
+        }
 
-        // 라운드 카드 생성
-        Card roundCard1 = cardFactory.createCard("round");
-        List<Action> actionsForRoundCard1 = new ArrayList<>();
-        actionsForRoundCard1.add(new GainResourceAction("grain", 1));
-        cardFactory.addActionsToCard(roundCard1, actionsForRoundCard1);
-        addCardToDeck("roundCards", roundCard1);
+        // 라운드 카드를 주기별로 생성
+        for (int i = 0; i < 4; i++) {
+            roundCards.add(cardFactory.createCard("RoundCard", 1));
+        }
+        for (int i = 0; i < 3; i++) {
+            roundCards.add(cardFactory.createCard("RoundCard", 2));
+        }
+        for (int i = 0; i < 2; i++) {
+            roundCards.add(cardFactory.createCard("RoundCard", 3));
+        }
+        for (int i = 0; i < 2; i++) {
+            roundCards.add(cardFactory.createCard("RoundCard", 4));
+        }
+        for (int i = 0; i < 2; i++) {
+            roundCards.add(cardFactory.createCard("RoundCard", 5));
+        }
+        roundCards.add(cardFactory.createCard("RoundCard", 6));
 
-        // 다른 카드 생성 및 초기화 로직 추가
+        for (int i = 0; i < 100; i++) {
+            minorImprovementCards.add(cardFactory.createCard("MinorImprovementCard", 0));
+            occupationCards.add(cardFactory.createCard("OccupationCard", 0));
+            majorImprovementCards.add(cardFactory.createCard("MajorImprovementCard", 0));
+        }
+    }
+
+    public List<Card> getDeck(String deckType) {
+        switch (deckType) {
+            case "actionCards":
+                return actionCards;
+            case "roundCards":
+                return roundCards;
+            case "minorImprovementCards":
+                return minorImprovementCards;
+            case "occupationCards":
+                return occupationCards;
+            case "majorImprovementCards":
+                return majorImprovementCards;
+            default:
+                return new ArrayList<>();
+        }
+    }
+
+    public void shuffleDeck(List<Card> deck) {
+        Collections.shuffle(deck);
+    }
+
+    public List<List<Card>> getShuffledRoundCardsByCycle() {
+        List<List<Card>> cycles = new ArrayList<>();
+        int[] roundsPerCycle = {4, 3, 2, 2, 2, 1};
+        int startIndex = 0;
+
+        for (int rounds : roundsPerCycle) {
+            List<Card> cycle = new ArrayList<>(roundCards.subList(startIndex, startIndex + rounds));
+            shuffleDeck(cycle);
+            cycles.add(cycle);
+            startIndex += rounds;
+        }
+
+        return cycles;
     }
 }

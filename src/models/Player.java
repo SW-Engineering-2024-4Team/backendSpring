@@ -1,19 +1,18 @@
 package models;
 
-import cards.Card;
-import cards.MajorImprovementCard;
-
+import cards.common.Card;
 import java.util.*;
 
 public class Player {
     private String id;
     private String name;
     private Map<String, Integer> resources;
-    private List<Card> occupationCards; // 직업 카드
-    private List<Card> minorImprovementCards; // 보조 설비 카드
-    private List<Card> activeCards; // 사용된 직업카드, 보조 설비 카드, 구매한 주요 설비 카드
+    private List<Card> occupationCards;
+    private List<Card> minorImprovementCards;
+    private List<Card> activeCards;
     private PlayerBoard playerBoard;
     private int score;
+    private boolean isFirstPlayer;
 
     public Player(String id, String name) {
         this.id = id;
@@ -23,6 +22,7 @@ public class Player {
         this.minorImprovementCards = new ArrayList<>();
         this.activeCards = new ArrayList<>();
         this.playerBoard = new PlayerBoard();
+        this.isFirstPlayer = false; // 기본값으로 설정
         initializeResources();
     }
 
@@ -46,12 +46,7 @@ public class Player {
     }
 
     public boolean useCard(Card card) {
-        if (card.execute(this)) {
-            addCard(card, "active");
-            return true;
-        } else {
-            return false;
-        }
+        return true;
     }
 
     public List<Card> getOccupationCards() {
@@ -68,14 +63,12 @@ public class Player {
 
     public void modifyAction(String actionType, int newValue) {
         for (Card card : activeCards) {
-            card.modifyAction(actionType, newValue);
         }
     }
 
     public int getModifiedAction(String actionType, int defaultValue) {
         int modifiedValue = defaultValue;
         for (Card card : activeCards) {
-            modifiedValue = card.getModifiedAction(actionType, modifiedValue);
         }
         return modifiedValue;
     }
@@ -113,9 +106,8 @@ public class Player {
 
     public void placeFamilyMember(int x, int y, Card card) {
         if (playerBoard.getFamilyMembers()[x][y] != null) {
-            if (card.execute(this)) {
-                playerBoard.removeFamilyMember(x, y);
-            }
+            card.execute(this);
+            playerBoard.removeFamilyMember(x, y);
         }
     }
 
@@ -137,8 +129,20 @@ public class Player {
         }
     }
 
-    public void exchangeResources(MajorImprovementCard card, String fromResource, String toResource, int amount) {
-        card.exchangeResources(this, fromResource, toResource, amount);
+    public boolean isFirstPlayer() {
+        return isFirstPlayer;
     }
 
+    public void setFirstPlayer(boolean isFirstPlayer) {
+        this.isFirstPlayer = isFirstPlayer;
+    }
+
+    public boolean chooseOption() {
+        // 플레이어가 선택하는 로직 구현
+        // 예시로 랜덤하게 선택하는 로직 // 프론트엔드와 통신
+        return new Random().nextBoolean();
+    }
+
+
+    // 기타 메서드
 }

@@ -1,11 +1,10 @@
 package models;
 
-import actions.Action;
-import cards.ActionCard;
-import cards.Card;
-import cards.MajorImprovementCard;
-import cards.RoundCard;
+import cards.actions.ActionCard;
+import cards.common.Card;
+import cards.rounds.RoundCard;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class MainBoard {
@@ -13,26 +12,31 @@ public class MainBoard {
     private List<Card> roundCards;
     private List<Card> majorImprovementCards;
 
-    public void initializeBoard(List<Card> actionCards, List<Card> roundCards, List<Card> majorImprovementCards) {
+    public void initializeBoard(List<Card> actionCards, List<List<Card>> roundCycles, List<Card> majorImprovementCards) {
         this.actionCards = actionCards;
-        this.roundCards = roundCards;
+        this.roundCards = new ArrayList<>();
+        for (List<Card> cycle : roundCycles) {
+            this.roundCards.addAll(cycle);
+        }
         this.majorImprovementCards = majorImprovementCards;
     }
 
     public void revealRoundCard(int round) {
         RoundCard roundCard = (RoundCard) roundCards.get(round - 1);
-        roundCard.setRevealed(true);
+        roundCard.reveal();
         // 프론트엔드에 라운드 카드 공개 메시지 전송
-//        WebSocketService.sendMessageToClient("roundCardRevealed", roundCard);
+        // WebSocketService.sendMessageToClient("roundCardRevealed", roundCard);
     }
 
     public void accumulateResources() {
-        for (Card card : actionCards) {
-            ((ActionCard) card).accumulateResources();
+       for (Card card : actionCards) {
+            if (card instanceof ActionCard && ((ActionCard) card).isAccumulative()) {
+                // 누적 자원 획득 로직 추가
+            }
         }
         for (Card card : roundCards) {
-            if (card instanceof RoundCard && ((RoundCard) card).isRevealed()) {
-                ((RoundCard) card).accumulateResources();
+            if (card instanceof RoundCard && ((RoundCard) card).isAccumulative()) {
+                // 누적 자원 획득 로직 추가
             }
         }
     }
@@ -46,9 +50,9 @@ public class MainBoard {
         return majorImprovementCards;
     }
 
-    public void removeMajorImprovementCard(MajorImprovementCard card) {
-        majorImprovementCards.remove(card);
-    }
+//    public void removeMajorImprovementCard(MajorImprovementCard card) {
+//        majorImprovementCards.remove(card);
+//    }
 
 
 }
