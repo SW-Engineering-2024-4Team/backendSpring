@@ -8,9 +8,7 @@ public class Animal {
     }
 
     // getter와 setter 메서드
-    public String getType() {
-        return type;
-    }
+    public String getType() { return type; }
 
     public void setType(String type) {
         this.type = type;

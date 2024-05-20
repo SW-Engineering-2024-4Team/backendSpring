@@ -2,12 +2,13 @@ package cards.minorimprovement;
 
 import cards.common.ExchangeableCard;
 import models.Player;
+
 import java.util.Map;
 
 public interface MinorImprovementCard extends ExchangeableCard {
-    Map<String, Integer> getCost(); // 자원 지불
-    int getAdditionalPoints(); // 추가 점수
-    boolean checkCondition(Player player); // 특정 조건 확인
+    Map<String, Integer> getCost();
+    int getAdditionalPoints();
+    boolean checkCondition(Player player);
 
     default void payCost(Player player) {
         Map<String, Integer> cost = getCost();

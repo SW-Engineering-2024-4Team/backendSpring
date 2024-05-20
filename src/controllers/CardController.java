@@ -32,7 +32,7 @@ public class CardController {
     private void initializeDecks() {
         CardFactory cardFactory = new CardFactory();
 
-        for (int i = 0; i < 30; i++) {
+        for (int i = 0; i < 16; i++) {
             actionCards.add(cardFactory.createCard("ActionCard", 0));
         }
 
@@ -54,9 +54,13 @@ public class CardController {
         }
         roundCards.add(cardFactory.createCard("RoundCard", 6));
 
-        for (int i = 0; i < 100; i++) {
+        for (int i = 0; i < 8; i++) {
             minorImprovementCards.add(cardFactory.createCard("MinorImprovementCard", 0));
             occupationCards.add(cardFactory.createCard("OccupationCard", 0));
+
+        }
+
+        for (int i = 0; i < 6; i++) {
             majorImprovementCards.add(cardFactory.createCard("MajorImprovementCard", 0));
         }
     }
@@ -96,4 +100,6 @@ public class CardController {
 
         return cycles;
     }
+
+
 }

@@ -1,7 +1,7 @@
 package controllers;
 
 import cards.common.Card;
-import cards.common.ExchangeTiming;
+import enums.ExchangeTiming;
 import cards.common.ExchangeableCard;
 import cards.majorimprovement.MajorImprovementCard;
 import models.*;
@@ -24,7 +24,7 @@ public class GameController {
         this.roomController = roomController;
         this.currentRound = 1;
 
-        this.turnOrder = new ArrayList<>(players);
+        this.turnOrder = new ArrayList<>(players); // 매 라운드별 프론트에 턴 넘기기
         Collections.shuffle(this.turnOrder);
 
         initializeFisrtFoods();
@@ -46,6 +46,7 @@ public class GameController {
         setupPlayers();
         setupMainBoard();
         notifyInitializationComplete();
+
     }
 
     private void setupPlayers() {
@@ -323,5 +324,9 @@ public class GameController {
 
     public MainBoard getMainBoard() {
         return mainBoard;
+    }
+
+    public List<Player> getPlayers() {
+        return players;
     }
 }

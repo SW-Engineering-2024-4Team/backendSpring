@@ -1,6 +1,6 @@
 package models;
 
-import cards.common.ExchangeTiming;
+import enums.ExchangeTiming;
 import cards.common.ExchangeableCard;
 import cards.majorimprovement.MajorImprovementCard;
 import cards.minorimprovement.MinorImprovementCard;

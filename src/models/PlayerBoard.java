@@ -55,5 +55,11 @@ public class PlayerBoard {
         familyMembers[x][y] = null;
     }
 
+    public void changeHouse() {
+    }
+
+    public void addFamilyMember(boolean b) {
+    }
+
     // getter and setter methods
 }
