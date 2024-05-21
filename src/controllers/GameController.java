@@ -157,6 +157,7 @@ public class GameController {
         notifyPlayers("농장 단계 완료. 가족 먹여살리기 단계로 진행하세요.");
     }
 
+
     private void feedFamilyPhase() {
         for (Player player : players) {
             int foodNeeded = calculateFoodNeeded(player);
@@ -184,6 +185,7 @@ public class GameController {
         return foodNeeded;
     }
 
+    // TODO
     private void breedAnimalsPhase() {
         for (Player player : players) {
             List<Animal> newAnimals = new ArrayList<>();
@@ -191,7 +193,7 @@ public class GameController {
 
             for (Map.Entry<String, Integer> entry : animalCounts.entrySet()) {
                 if (entry.getValue() >= 2) {
-                    newAnimals.add(new Animal(entry.getKey()));
+//                    newAnimals.add(new Animal(entry.getKey()));
                 }
             }
             List<ExchangeableCard> exchangeableCards = player.getExchangeableCards(ExchangeTiming.HARVEST);

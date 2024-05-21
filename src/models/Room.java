@@ -46,4 +46,12 @@ public class Room implements Tile {
     public void setAnimal(Animal animal) {
         this.animal = animal;
     }
+
+    public boolean hasFamilyMember() {
+        return familyMember != null;
+    }
+
+    public boolean hasAnimal() {
+        return animal != null;
+    }
 }

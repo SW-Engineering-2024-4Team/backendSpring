@@ -9,14 +9,12 @@ public class PlayerBoard {
     private boolean[][] fences;
     private FamilyMember[][] familyMembers;
     private Animal[][] animals;
-    private RoomType houseType;
 
     public PlayerBoard() {
         this.tiles = new Tile[3][5];
         this.fences = new boolean[4][6];
         this.familyMembers = new FamilyMember[3][5];
         this.animals = new Animal[3][5];
-        this.houseType = RoomType.WOOD; // 초기 집 타입
         initializeBoard();
     }
 
@@ -28,49 +26,37 @@ public class PlayerBoard {
         familyMembers[0][2] = new FamilyMember(0, 2, true);
     }
 
-    public boolean canBuildHouse(int x, int y, RoomType type, Map<String, Integer> playerResources) {
+    public boolean canBuildHouse(int x, int y, RoomType type, Map<String, Integer> resources) {
+        // 1. 타일이 비어 있는지 확인
         if (tiles[x][y] != null) {
-            return false; // 타일이 비어있지 않음
+            return false;
         }
 
-        if (!isAdjacentToExistingHouse(x, y)) {
-            return false; // 기존 집과 인접하지 않음
+        // 2. 위치가 기존의 집과 이웃해 있는지 확인
+        boolean adjacentToExistingHouse = false;
+        if (x > 0 && tiles[x - 1][y] instanceof Room) adjacentToExistingHouse = true;
+        if (x < tiles.length - 1 && tiles[x + 1][y] instanceof Room) adjacentToExistingHouse = true;
+        if (y > 0 && tiles[x][y - 1] instanceof Room) adjacentToExistingHouse = true;
+        if (y < tiles[0].length - 1 && tiles[x][y + 1] instanceof Room) adjacentToExistingHouse = true;
+        if (!adjacentToExistingHouse) {
+            return false;
         }
 
-        if (type != houseType) {
-            return false; // 집 타입이 일치하지 않음
-        }
-
-        if (!hasSufficientResources(playerResources, type)) {
-            return false; // 자원이 충분하지 않음
-        }
-
-        return true;
-    }
-
-    private boolean isAdjacentToExistingHouse(int x, int y) {
-        // 기존 집과 인접한지 확인하는 로직
-        int[][] directions = {{-1, 0}, {1, 0}, {0, -1}, {0, 1}};
-        for (int[] direction : directions) {
-            int newX = x + direction[0];
-            int newY = y + direction[1];
-            if (newX >= 0 && newX < tiles.length && newY >= 0 && newY < tiles[0].length) {
-                if (tiles[newX][newY] instanceof Room && ((Room) tiles[newX][newY]).getType() == houseType) {
-                    return true;
+        // 3. 같은 타입의 집을 지으려는지 확인
+        for (Tile[] row : tiles) {
+            for (Tile tile : row) {
+                if (tile instanceof Room && ((Room) tile).getType() != type) {
+                    return false;
                 }
             }
         }
-        return false;
-    }
 
-    private boolean hasSufficientResources(Map<String, Integer> playerResources, RoomType type) {
-        // 각 타입별 자원 5개가 있는지 확인
-        String resourceType = type.name().toLowerCase();
-        return playerResources.getOrDefault(resourceType, 0) >= 5;
+        // 4. 자원이 충분한지 확인
+        return true;
     }
 
     public void buildHouse(int x, int y, RoomType type) {
-        if (canBuildHouse(x, y, type, null)) { // 자원 체크는 이미 했다고 가정
+        if (tiles[x][y] == null) {
             tiles[x][y] = new Room(type, x, y);
         }
     }
@@ -102,6 +88,12 @@ public class PlayerBoard {
         }
     }
 
+    public void plowField(int x, int y) {
+        if (tiles[x][y] == null) {
+            tiles[x][y] = new FieldTile(x, y, 0);
+        }
+    }
+
     public void resetFamilyMembers() {
         // 가족 구성원을 초기 위치로 리셋하는 로직
         initializeBoard();
@@ -124,12 +116,80 @@ public class PlayerBoard {
     }
 
     public void changeHouse() {
-        // 집 개조 로직 추가
     }
 
-    public void addFamilyMember(boolean adult) {
-        // 새로운 가족 구성원 추가 로직 추가
+    // 빈 방이 있는지 확인하는 메서드
+    public boolean hasEmptyRoom() {
+        for (Tile[] row : tiles) {
+            for (Tile tile : row) {
+                if (tile instanceof Room && !((Room) tile).hasFamilyMember()) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
+
+    // 방이 비어 있는지 확인하는 메서드
+    public boolean isEmptyRoom(int x, int y) {
+        return tiles[x][y] instanceof Room && !((Room) tiles[x][y]).hasFamilyMember();
+    }
+
+    // 보드에 가족 구성원을 추가하는 메서드
+    public void addFamilyMemberToBoard(FamilyMember familyMember, int x, int y) {
+        if (isEmptyRoom(x, y)) {
+            ((Room) tiles[x][y]).setFamilyMember(familyMember);
+            familyMember.setX(x);
+            familyMember.setY(y);
+        }
+    }
+
+    // 방이나 울타리에 동물을 배치할 수 있는지 확인하는 메서드
+    public boolean canPlaceAnimal(int x, int y, String animalType) {
+        // 울타리 내부나 방인지 확인
+        if (tiles[x][y] instanceof Room) {
+            // 모든 방을 검사하여 이미 동물이 있는지 확인
+            for (Tile[] row : tiles) {
+                for (Tile tile : row) {
+                    if (tile instanceof Room) {
+                        Room room = (Room) tile;
+                        if (room.hasAnimal() && !room.getAnimal().getType().equals(animalType)) {
+                            return false; // 이미 다른 종류의 동물이 있다면 false
+                        }
+                    }
+                }
+            }
+            // 모든 방을 통틀어 동물이 없거나 같은 종류의 동물만 있다면 true
+            return true;
+        } else {
+            //TODO 울타리안에 동물을 넣을 수 있는지 확인하는 로직(capacity 계산)
+            return fences[x][y];
+        }
+    }
+
+    // 보드에 동물을 추가하는 메서드
+    public void addAnimalToBoard(Animal animal, int x, int y) {
+        if (canPlaceAnimal(x, y, animal.getType())) {
+            if (tiles[x][y] instanceof Room) {
+                ((Room) tiles[x][y]).setAnimal(animal);
+            } else {
+                animals[x][y] = animal;
+            }
+            animal.setX(x);
+            animal.setY(y);
+        }
+    }
+
+    public void addAnimal(Animal animal) {
+        // 초기에는 보드 밖에 배치
+        // 실제 게임에서는 플레이어가 특정 위치에 동물을 배치하게 될 것
+        animal.setX(-1);
+        animal.setY(-1);
+        // 동물을 리스트나 맵에 추가하는 로직 필요
+    }
+
+
+
 
     // getter and setter methods
 }

@@ -11,7 +11,16 @@ public interface AccumulativeCard extends ActionRoundCard {
         if (isAccumulative()) {
             Map<String, Integer> resources = getAccumulatedResources();
             for (Map.Entry<String, Integer> entry : resources.entrySet()) {
-                resources.put(entry.getKey(), resources.getOrDefault(entry.getKey(), 0) + entry.getValue());
+                String resource = entry.getKey();
+                int amount = entry.getValue();
+
+                if (resource.equals("sheep")) {
+                    // 양 자원 누적
+                    resources.put(resource, resources.getOrDefault(resource, 0) + amount);
+                } else {
+                    // 일반 자원 누적
+                    resources.put(resource, resources.getOrDefault(resource, 0) + amount);
+                }
             }
         }
     }

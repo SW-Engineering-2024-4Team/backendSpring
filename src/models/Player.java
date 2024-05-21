@@ -4,6 +4,8 @@ import cards.common.*;
 import cards.majorimprovement.MajorImprovementCard;
 import controllers.GameController;
 import enums.ExchangeTiming;
+import enums.RoomType;
+
 import java.util.*;
 
 public class Player {
@@ -18,6 +20,9 @@ public class Player {
     private int score;
     private boolean isFirstPlayer;
     private GameController gameController;
+    private List<FamilyMember> newFamilyMembers; // 새로 추가된 가족 구성원 리스트
+    private List<Animal> newAnimals; // 새로 추가된 동물 리스트
+
 
     public Player(String id, String name, GameController gameController) {
         this.id = id;
@@ -30,7 +35,10 @@ public class Player {
         this.playerBoard = new PlayerBoard();
         this.isFirstPlayer = false;
         this.gameController = gameController;
+        this.newFamilyMembers = new ArrayList<>();
+        this.newAnimals = new ArrayList<>();
         initializeResources();
+
     }
 
     private void initializeResources() {
@@ -40,6 +48,7 @@ public class Player {
         resources.put("grain", 0);
         resources.put("food", 0);
         resources.put("beggingCard", 0);
+        resources.put("sheep", 0);
     }
 
     public void addCard(CommonCard card, String type) {
@@ -107,11 +116,21 @@ public class Player {
     }
 
     public void addResource(String resource, int amount) {
-        resources.put(resource, resources.getOrDefault(resource, 0) + amount);
+        if (resource.equals("sheep")) {
+            // 양 자원을 추가할 경우
+            resources.put(resource, resources.getOrDefault(resource, 0) + amount);
+        } else {
+            // 기존 자원 처리
+            resources.put(resource, resources.getOrDefault(resource, 0) + amount);
+        }
     }
 
     public int getResource(String resource) {
         return resources.getOrDefault(resource, 0);
+    }
+
+    public Map<String, Integer> getResources() {
+        return resources;
     }
 
     public void convertBabiesToAdults() {
@@ -148,6 +167,7 @@ public class Player {
         } else if (card instanceof UnifiedCard) {
             minorImprovementCards.remove(card);
         }
+
         activeCards.add(card);
     }
 
@@ -207,4 +227,75 @@ public class Player {
         return bakingCards.get(random.nextInt(bakingCards.size()));
     }
 
+    // 집 짓기 메서드
+    public void buildHouse(int x, int y, RoomType type) {
+        if (playerBoard.canBuildHouse(x, y, type, resources)) {
+            Map<String, Integer> cost = getHouseResourceCost(type);
+            if (checkResources(cost)) {
+                payResources(cost);
+                playerBoard.buildHouse(x, y, type);
+            } else {
+                // 자원이 부족하다는 메시지 표시
+                System.out.println("자원이 부족합니다.");
+            }
+        } else {
+            // 집을 지을 수 없는 조건이라는 메시지 표시
+            System.out.println("집을 지을 수 없습니다.");
+        }
+    }
+
+    public Map<String, Integer> getHouseResourceCost(RoomType type) {
+        Map<String, Integer> cost = new HashMap<>();
+        switch (type) {
+            case WOOD:
+                cost.put("wood", 5);
+                break;
+            case CLAY:
+                cost.put("clay", 5);
+                break;
+            case STONE:
+                cost.put("stone", 5);
+                break;
+        }
+        return cost;
+    }
+
+    // 가족 구성원 추가 메서드
+    public void addFamilyMember() {
+        if (playerBoard.hasEmptyRoom()) {
+            FamilyMember newMember = new FamilyMember(-1, -1, false); // 보드 외부에 위치한 신생아
+            newFamilyMembers.add(newMember);
+            System.out.println("새로운 가족 구성원이 추가되었습니다. 빈 방에 배치하세요.");
+        } else {
+            System.out.println("빈 방이 없습니다.");
+        }
+    }
+
+    // 새 가족 구성원을 빈 방에 배치하는 메서드
+    public void placeFamilyMemberInRoom(FamilyMember familyMember, int x, int y) {
+        if (playerBoard.isEmptyRoom(x, y)) {
+            playerBoard.addFamilyMemberToBoard(familyMember, x, y);
+            newFamilyMembers.remove(familyMember);
+        } else {
+            System.out.println("해당 방은 이미 사용 중입니다.");
+        }
+    }
+
+    // 동물 추가 메서드
+    public void addAnimal(String type) {
+        Animal newAnimal = new Animal(-1, -1, type); // 보드 외부에 위치한 동물
+        newAnimals.add(newAnimal);
+        System.out.println("새로운 동물이 추가되었습니다. 울타리나 집에 배치하세요.");
+    }
+
+    // 새 동물을 울타리나 방에 배치하는 메서드
+    public void placeAnimalOnBoard(Animal animal, int x, int y) {
+        if (playerBoard.canPlaceAnimal(x, y, animal.getType())) {
+            playerBoard.addAnimalToBoard(animal, x, y);
+            newAnimals.remove(animal);
+        } else {
+            System.out.println("해당 위치에는 동물을 배치할 수 없습니다.");
+        }
+
+    }
 }

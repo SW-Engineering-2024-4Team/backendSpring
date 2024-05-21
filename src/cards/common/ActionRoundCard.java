@@ -2,6 +2,7 @@ package cards.common;
 
 import cards.majorimprovement.MajorImprovementCard;
 import enums.RoomType;
+import models.Animal;
 import models.MainBoard;
 import models.Player;
 
@@ -17,9 +18,23 @@ public interface ActionRoundCard extends CommonCard {
     // 자원 획득
     default void gainResources(Player player, Map<String, Integer> resources) {
         for (Map.Entry<String, Integer> entry : resources.entrySet()) {
-            player.addResource(entry.getKey(), entry.getValue());
+            String resource = entry.getKey();
+            int amount = entry.getValue();
+
+            if (resource.equals("sheep")) {
+                // 양 자원일 경우
+                player.addResource(resource, amount);
+                for (int i = 0; i < amount; i++) {
+                    // 양 객체를 추가하여 플레이어 보드에 배치
+                    player.getPlayerBoard().addAnimal(new Animal(-1, -1, resource));
+                }
+            } else {
+                // 일반 자원일 경우
+                player.addResource(resource, amount);
+            }
         }
     }
+
 
     // 직업 카드 사용
     default void useOccupationCard(Player player) {
@@ -83,20 +98,43 @@ public interface ActionRoundCard extends CommonCard {
     }
 
     // 기물 짓기
+
+    // 집 짓기
     default void buildHouse(Player player, int x, int y, RoomType type) {
-        player.getPlayerBoard().buildHouse(x, y, type);
+        Map<String, Integer> playerResources = player.getResources(); // 플레이어의 자원을 가져옴
+        if (player.getPlayerBoard().canBuildHouse(x, y, type, playerResources)) {
+            Map<String, Integer> cost = player.getHouseResourceCost(type);
+            if (player.checkResources(cost)) {
+                player.payResources(cost);
+                player.getPlayerBoard().buildHouse(x, y, type);
+            } else {
+                // 자원이 부족하다는 메시지 표시
+                System.out.println("자원이 부족합니다.");
+            }
+        } else {
+            // 집을 지을 수 없는 조건이라는 메시지 표시
+            System.out.println("집을 지을 수 없습니다.");
+        }
     }
 
+    // 밭 일구기
+    default void plowField(Player player, int x, int y) {
+        player.getPlayerBoard().plowField(x, y);
+    }
+
+    // TODO 외양간 짓기
     default void buildBarn(Player player, int x, int y) {
         player.getPlayerBoard().buildBarn(x, y);
     }
 
+    // TODO 울타리 치기
     default void buildFence(Player player, int startX, int startY, int endX, int endY) {
         player.getPlayerBoard().buildFence(startX, startY, endX, endY);
     }
 
+    // 곡식 심기
     default void plantField(Player player, int x, int y, int initialCrops) {
-        player.getPlayerBoard().plantField(x, y, 3);
+        player.getPlayerBoard().plantField(x, y, initialCrops);
     }
 
     // 선 플레이어 되기
@@ -105,11 +143,15 @@ public interface ActionRoundCard extends CommonCard {
     }
 
     // 객체 추가
+
+    // 1. 가족 구성원 추가
     default void addNewborn(Player player) {
-        player.getPlayerBoard().addFamilyMember(false);
+        player.addFamilyMember();
     }
 
     // 기물 변경
+
+    // TODO  집 변경
     default void renovateRooms(Player player) {
         player.getPlayerBoard().changeHouse();
     }
