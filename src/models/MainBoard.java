@@ -1,65 +1,68 @@
 package models;
 
-import cards.actions.ActionCard;
-import cards.common.Card;
-import cards.rounds.RoundCard;
+import cards.common.AccumulativeCard;
+import cards.common.ActionRoundCard;
+import cards.common.CommonCard;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 public class MainBoard {
-    private List<Card> actionCards;
-    private List<Card> roundCards;
-    private List<Card> majorImprovementCards;
+    private List<CommonCard> actionCards;
+    private List<ActionRoundCard> roundCards;
+    private List<CommonCard> majorImprovementCards;
 
-    public void initializeBoard(List<Card> actionCards, List<List<Card>> roundCycles, List<Card> majorImprovementCards) {
+    public void initializeBoard(List<CommonCard> actionCards, List<List<CommonCard>> roundCycles, List<CommonCard> majorImprovementCards) {
         this.actionCards = actionCards;
         this.roundCards = new ArrayList<>();
-        for (List<Card> cycle : roundCycles) {
-            this.roundCards.addAll(cycle);
+        for (List<CommonCard> cycle : roundCycles) {
+            this.roundCards.addAll((Collection<? extends ActionRoundCard>) cycle);
         }
         this.majorImprovementCards = majorImprovementCards;
     }
 
     public void revealRoundCard(int round) {
-        RoundCard roundCard = (RoundCard) roundCards.get(round - 1);
+        ActionRoundCard roundCard = roundCards.get(round - 1);
         roundCard.reveal();
         // 프론트엔드에 라운드 카드 공개 메시지 전송
         // WebSocketService.sendMessageToClient("roundCardRevealed", roundCard);
     }
 
     public void accumulateResources() {
-       for (Card card : actionCards) {
-            if (card instanceof ActionCard && ((ActionCard) card).isAccumulative()) {
-                card.accumulate();
+        for (CommonCard card : actionCards) {
+            if (card instanceof AccumulativeCard) {
+                ((AccumulativeCard) card).accumulateResources();
             }
         }
-        for (Card card : roundCards) {
-            if (card instanceof RoundCard && ((RoundCard) card).isAccumulative() && ((RoundCard) card).isRevealed()) {
-                card.accumulate();
+        for (ActionRoundCard card : roundCards) {
+            if (card instanceof AccumulativeCard && card.isRevealed()) {
+                ((AccumulativeCard) card).accumulateResources();
             }
         }
     }
-    public List<Card> getActionCards() {
+
+    public List<CommonCard> getActionCards() {
         return actionCards;
     }
-    public List<Card> getRoundCards() {
+
+    public List<ActionRoundCard> getRoundCards() {
         return roundCards;
     }
-    public List<Card> getMajorImprovementCards() {
+
+    public List<CommonCard> getMajorImprovementCards() {
         return majorImprovementCards;
     }
 
-    public List<Card> getAllCards() {
-        List<Card> allCards = new ArrayList<>();
+    public List<CommonCard> getAllCards() {
+        List<CommonCard> allCards = new ArrayList<>();
         allCards.addAll(actionCards);
         allCards.addAll(roundCards);
         return allCards;
     }
 
-//    public void removeMajorImprovementCard(MajorImprovementCard card) {
-//        majorImprovementCards.remove(card);
-//    }
-
+    public void removeMajorImprovementCard(CommonCard card) {
+        majorImprovementCards.remove(card);
+    }
 
 }

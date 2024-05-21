@@ -1,17 +1,19 @@
 package controllers;
 
-import cards.common.Card;
-import cards.common.CardFactory;
+import cards.common.CommonCard;
+import cards.factory.CardFactory;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 public class CardController {
     private static CardController instance;
-    private List<Card> actionCards;
-    private List<Card> roundCards;
-    private List<Card> minorImprovementCards;
-    private List<Card> occupationCards;
-    private List<Card> majorImprovementCards;
+    private List<CommonCard> actionCards;
+    private List<CommonCard> roundCards;
+    private List<CommonCard> minorImprovementCards;
+    private List<CommonCard> occupationCards;
+    private List<CommonCard> majorImprovementCards;
 
     private CardController() {
         this.actionCards = new ArrayList<>();
@@ -30,42 +32,10 @@ public class CardController {
     }
 
     private void initializeDecks() {
-        CardFactory cardFactory = new CardFactory();
-
-        for (int i = 0; i < 16; i++) {
-            actionCards.add(cardFactory.createCard("ActionCard", 0));
-        }
-
-        // 라운드 카드를 주기별로 생성
-        for (int i = 0; i < 4; i++) {
-            roundCards.add(cardFactory.createCard("RoundCard", 1));
-        }
-        for (int i = 0; i < 3; i++) {
-            roundCards.add(cardFactory.createCard("RoundCard", 2));
-        }
-        for (int i = 0; i < 2; i++) {
-            roundCards.add(cardFactory.createCard("RoundCard", 3));
-        }
-        for (int i = 0; i < 2; i++) {
-            roundCards.add(cardFactory.createCard("RoundCard", 4));
-        }
-        for (int i = 0; i < 2; i++) {
-            roundCards.add(cardFactory.createCard("RoundCard", 5));
-        }
-        roundCards.add(cardFactory.createCard("RoundCard", 6));
-
-        for (int i = 0; i < 8; i++) {
-            minorImprovementCards.add(cardFactory.createCard("MinorImprovementCard", 0));
-            occupationCards.add(cardFactory.createCard("OccupationCard", 0));
-
-        }
-
-        for (int i = 0; i < 6; i++) {
-            majorImprovementCards.add(cardFactory.createCard("MajorImprovementCard", 0));
-        }
+        CardFactory.createCards(actionCards, roundCards, minorImprovementCards, occupationCards, majorImprovementCards);
     }
 
-    public List<Card> getDeck(String deckType) {
+    public List<CommonCard> getDeck(String deckType) {
         switch (deckType) {
             case "actionCards":
                 return actionCards;
@@ -82,17 +52,17 @@ public class CardController {
         }
     }
 
-    public void shuffleDeck(List<Card> deck) {
+    public void shuffleDeck(List<CommonCard> deck) {
         Collections.shuffle(deck);
     }
 
-    public List<List<Card>> getShuffledRoundCardsByCycle() {
-        List<List<Card>> cycles = new ArrayList<>();
+    public List<List<CommonCard>> getShuffledRoundCardsByCycle() {
+        List<List<CommonCard>> cycles = new ArrayList<>();
         int[] roundsPerCycle = {4, 3, 2, 2, 2, 1};
         int startIndex = 0;
 
         for (int rounds : roundsPerCycle) {
-            List<Card> cycle = new ArrayList<>(roundCards.subList(startIndex, startIndex + rounds));
+            List<CommonCard> cycle = new ArrayList<>(roundCards.subList(startIndex, startIndex + rounds));
             shuffleDeck(cycle);
             cycles.add(cycle);
             startIndex += rounds;
@@ -100,6 +70,4 @@ public class CardController {
 
         return cycles;
     }
-
-
 }

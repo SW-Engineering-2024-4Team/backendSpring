@@ -4,8 +4,10 @@ import enums.RoomType;
 
 public class Room implements Tile {
     private RoomType type;
-    private int x;
-    private int y;
+    private final int x;
+    private final int y;
+    private FamilyMember familyMember;
+    private Animal animal;
 
     public Room(RoomType type, int x, int y) {
         this.type = type;
@@ -13,7 +15,6 @@ public class Room implements Tile {
         this.y = y;
     }
 
-    // getter와 setter 메서드
     public RoomType getType() {
         return type;
     }
@@ -26,15 +27,23 @@ public class Room implements Tile {
         return x;
     }
 
-    public void setX(int x) {
-        this.x = x;
-    }
-
     public int getY() {
         return y;
     }
 
-    public void setY(int y) {
-        this.y = y;
+    public FamilyMember getFamilyMember() {
+        return familyMember;
+    }
+
+    public void setFamilyMember(FamilyMember familyMember) {
+        this.familyMember = familyMember;
+    }
+
+    public Animal getAnimal() {
+        return animal;
+    }
+
+    public void setAnimal(Animal animal) {
+        this.animal = animal;
     }
 }

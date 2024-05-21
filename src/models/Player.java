@@ -1,23 +1,19 @@
 package models;
 
-import enums.ExchangeTiming;
-import cards.common.ExchangeableCard;
+import cards.common.*;
 import cards.majorimprovement.MajorImprovementCard;
-import cards.minorimprovement.MinorImprovementCard;
-import cards.occupation.OccupationCard;
-import cards.common.Card;
 import controllers.GameController;
-
+import enums.ExchangeTiming;
 import java.util.*;
 
 public class Player {
-    private final ArrayList<Card> majorImprovementCards;
+    private final ArrayList<CommonCard> majorImprovementCards;
     private String id;
     private String name;
     private Map<String, Integer> resources;
-    private List<Card> occupationCards;
-    private List<Card> minorImprovementCards;
-    private List<Card> activeCards;
+    private List<CommonCard> occupationCards;
+    private List<CommonCard> minorImprovementCards;
+    private List<CommonCard> activeCards;
     private PlayerBoard playerBoard;
     private int score;
     private boolean isFirstPlayer;
@@ -46,7 +42,7 @@ public class Player {
         resources.put("beggingCard", 0);
     }
 
-    public void addCard(Card card, String type) {
+    public void addCard(CommonCard card, String type) {
         if (type.equals("occupation")) {
             occupationCards.add(card);
         } else if (type.equals("minorImprovement")) {
@@ -56,32 +52,20 @@ public class Player {
         }
     }
 
-    public boolean useCard(Card card) {
-        return true;
-    }
-
-    public List<Card> getOccupationCards() {
+    public List<CommonCard> getOccupationCards() {
         return occupationCards;
     }
 
-    public List<Card> getMinorImprovementCards() {
+    public List<CommonCard> getMinorImprovementCards() {
         return minorImprovementCards;
     }
 
-    public List<Card> getActiveCards() {
+    public List<CommonCard> getActiveCards() {
         return activeCards;
     }
 
-    public void modifyAction(String actionType, int newValue) {
-        for (Card card : activeCards) {
-        }
-    }
-
-    public int getModifiedAction(String actionType, int defaultValue) {
-        int modifiedValue = defaultValue;
-        for (Card card : activeCards) {
-        }
-        return modifiedValue;
+    public List<CommonCard> getMajorImprovementCards() {
+        return majorImprovementCards;
     }
 
     public PlayerBoard getPlayerBoard() {
@@ -115,7 +99,7 @@ public class Player {
         playerBoard.resetFamilyMembers();
     }
 
-    public void placeFamilyMember(int x, int y, Card card) {
+    public void placeFamilyMember(int x, int y, ActionRoundCard card) {
         if (playerBoard.getFamilyMembers()[x][y] != null) {
             card.execute(this);
             playerBoard.removeFamilyMember(x, y);
@@ -156,24 +140,23 @@ public class Player {
         return gameController;
     }
 
-    public void moveToActiveCards(Card card) {
+    public void moveToActiveCards(CommonCard card) {
         if (card instanceof MajorImprovementCard) {
             majorImprovementCards.remove(card);
-        } else if (card instanceof OccupationCard) {
+        } else if (card instanceof UnifiedCard) {
             occupationCards.remove(card);
-        } else if (card instanceof MinorImprovementCard) {
+        } else if (card instanceof UnifiedCard) {
             minorImprovementCards.remove(card);
         }
         activeCards.add(card);
     }
 
-
     public List<ExchangeableCard> getExchangeableCards(ExchangeTiming timing) {
         List<ExchangeableCard> exchangeableCards = new ArrayList<>();
-        for (Card card : activeCards) {
+        for (CommonCard card : activeCards) {
             if (card instanceof ExchangeableCard) {
                 ExchangeableCard exchangeableCard = (ExchangeableCard) card;
-                if (exchangeableCard.hasExchangeResourceFunction() && (exchangeableCard.getExchangeTiming() == timing || exchangeableCard.getExchangeTiming() == ExchangeTiming.ANYTIME)) {
+                if (exchangeableCard.canExchange(timing) || exchangeableCard.canExchange(ExchangeTiming.ANYTIME)) {
                     exchangeableCards.add(exchangeableCard);
                 }
             }
@@ -182,43 +165,46 @@ public class Player {
     }
 
     public void executeExchange(ExchangeableCard card, String fromResource, String toResource, int amount) {
-        if (activeCards.contains(card)) {
-            card.exchangeResources(this, fromResource, toResource, amount);
+        card.executeExchange(this, fromResource, toResource, amount);
+    }
+
+    public void useBakingCard(BakingCard card) {
+        card.triggerBreadBaking(this);
+    }
+
+    public void addMajorImprovementCard(CommonCard card) {
+        majorImprovementCards.add(card);
+    }
+
+    public void removeMajorImprovementCard(CommonCard card) {
+        majorImprovementCards.remove(card);
+    }
+
+    public boolean checkResources(Map<String, Integer> cost) {
+        for (Map.Entry<String, Integer> entry : cost.entrySet()) {
+            if (resources.getOrDefault(entry.getKey(), 0) < entry.getValue()) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public void payResources(Map<String, Integer> cost) {
+        for (Map.Entry<String, Integer> entry : cost.entrySet()) {
+            addResource(entry.getKey(), -entry.getValue());
         }
     }
 
-    public void useMinorImprovementCard(MinorImprovementCard card) {
-        if (card.checkCondition(this)) {
-            card.payCost(this);
-            card.applyEffect(this);
-            moveToActiveCards(card);
-        }
-    }
-
-    public void useMajorImprovementCard(MajorImprovementCard card) {
-        card.payCost(this);
-        card.applyEffect(this);
+    public void useUnifiedCard(UnifiedCard card) {
+        card.execute(this);
         moveToActiveCards(card);
     }
 
-    public List<MajorImprovementCard> getBreadBakingCards() {
-        List<MajorImprovementCard> breadBakingCards = new ArrayList<>();
-        for (Card card : activeCards) {
-            if (card instanceof MajorImprovementCard && ((MajorImprovementCard) card).hasBreadBakingFunction()) {
-                breadBakingCards.add((MajorImprovementCard) card);
-            }
-        }
-        return breadBakingCards;
+    // 주요 설비 카드 선택 로직
+    public BakingCard selectBakingCard(List<BakingCard> bakingCards) {
+        // 플레이어가 선택하는 로직 (여기서는 예시로 랜덤 선택)
+        Random random = new Random();
+        return bakingCards.get(random.nextInt(bakingCards.size()));
     }
-
-    public void bakeBread(MajorImprovementCard card, Map<String, Integer> exchangeRate) {
-        if (activeCards.contains(card)) {
-            card.bakeBread(this, exchangeRate);
-        }
-    }
-
-
-
-
 
 }

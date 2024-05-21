@@ -1,10 +1,13 @@
 package controllers;
 
-import cards.common.Card;
-import enums.ExchangeTiming;
+import cards.common.ActionRoundCard;
+import cards.common.BakingCard;
+import cards.common.CommonCard;
 import cards.common.ExchangeableCard;
 import cards.majorimprovement.MajorImprovementCard;
+import enums.ExchangeTiming;
 import models.*;
+
 import java.util.*;
 
 public class GameController {
@@ -27,10 +30,10 @@ public class GameController {
         this.turnOrder = new ArrayList<>(players); // 매 라운드별 프론트에 턴 넘기기
         Collections.shuffle(this.turnOrder);
 
-        initializeFisrtFoods();
+        initializeFirstFoods();
     }
 
-    private void initializeFisrtFoods() {
+    private void initializeFirstFoods() {
         for (int i = 0; i < turnOrder.size(); i++) {
             Player player = turnOrder.get(i);
             if (i == 0) {
@@ -45,13 +48,11 @@ public class GameController {
     public void initializeGame() {
         setupPlayers();
         setupMainBoard();
-        notifyInitializationComplete();
-
     }
 
     private void setupPlayers() {
-        List<Card> occupationDeck = cardController.getDeck("occupationCards");
-        List<Card> minorImprovementDeck = cardController.getDeck("minorImprovementCards");
+        List<CommonCard> occupationDeck = cardController.getDeck("occupationCards");
+        List<CommonCard> minorImprovementDeck = cardController.getDeck("minorImprovementCards");
         cardController.shuffleDeck(occupationDeck);
         cardController.shuffleDeck(minorImprovementDeck);
 
@@ -64,15 +65,11 @@ public class GameController {
     }
 
     private void setupMainBoard() {
-        List<Card> actionCards = cardController.getDeck("actionCards");
-        List<List<Card>> roundCycles = cardController.getShuffledRoundCardsByCycle();
-        List<Card> majorImprovementCards = cardController.getDeck("majorImprovementCards");
+        List<CommonCard> actionCards = cardController.getDeck("actionCards");
+        List<List<CommonCard>> roundCycles = cardController.getShuffledRoundCardsByCycle();
+        List<CommonCard> majorImprovementCards = cardController.getDeck("majorImprovementCards");
 
         mainBoard.initializeBoard(actionCards, roundCycles, majorImprovementCards);
-    }
-
-    private void notifyInitializationComplete() {
-        // 클라이언트에게 초기화 완료 메시지 전송
     }
 
     public void startGame() {
@@ -91,6 +88,11 @@ public class GameController {
     private void prepareRound() {
         mainBoard.revealRoundCard(currentRound);
         mainBoard.accumulateResources();
+        for (Player player : players) {
+            List<ExchangeableCard> exchangeableCards = player.getExchangeableCards(ExchangeTiming.ANYTIME);
+            // 프론트엔드에 교환 가능 카드 목록 제공 로직 필요
+            // WebSocketService.sendMessageToClient(player.getId(), "exchangeableCards", exchangeableCards);
+        }
     }
 
     private void playRound() {
@@ -99,10 +101,6 @@ public class GameController {
             for (Player player : turnOrder) {
                 if (player.hasAvailableFamilyMembers()) {
                     playerTurn(player.getId());
-                    // 라운드 진행 단계에서 교환 가능 카드 목록 제공
-                    List<ExchangeableCard> exchangeableCards = player.getExchangeableCards(ExchangeTiming.ANYTIME);
-                    // 프론트엔드에 교환 가능 카드 목록 제공 로직 필요
-                    // WebSocketService.sendMessageToClient(player.getId(), "exchangeableCards", exchangeableCards);
                 }
             }
             roundFinished = checkIfRoundFinished();
@@ -120,7 +118,7 @@ public class GameController {
             // 좌표와 카드 정보는 프론트엔드에서 제공
             // int x = ...; // 프론트엔드에서 받은 x 좌표
             // int y = ...; // 프론트엔드에서 받은 y 좌표
-            // Card card = ...; // 프론트엔드에서 받은 카드 객체
+            // CommonCard card = ...; // 프론트엔드에서 받은 카드 객체
 
             // player.placeFamilyMember(x, y, card);
         }
@@ -155,10 +153,6 @@ public class GameController {
                     }
                 }
             }
-            // 농장 단계에서 교환 가능 카드 목록 제공
-            List<ExchangeableCard> exchangeableCards = player.getExchangeableCards(ExchangeTiming.HARVEST);
-            // 프론트엔드에 교환 가능 카드 목록 제공 로직 필요
-            // WebSocketService.sendMessageToClient(player.getId(), "exchangeableCards", exchangeableCards);
         }
         notifyPlayers("농장 단계 완료. 가족 먹여살리기 단계로 진행하세요.");
     }
@@ -173,6 +167,7 @@ public class GameController {
                 player.addResource("food", -player.getResource("food"));
                 player.addResource("beggingCard", foodShortage);
             }
+            List<ExchangeableCard> exchangeableCards = player.getExchangeableCards(ExchangeTiming.HARVEST);
         }
         notifyPlayers("가족 먹여살리기 단계 완료. 가축 번식 단계로 진행하세요.");
     }
@@ -199,45 +194,10 @@ public class GameController {
                     newAnimals.add(new Animal(entry.getKey()));
                 }
             }
-            // 가축 번식 단계에서 교환 가능 카드 목록 제공
             List<ExchangeableCard> exchangeableCards = player.getExchangeableCards(ExchangeTiming.HARVEST);
-            // 프론트엔드에 교환 가능 카드 목록 제공 로직 필요
-            // WebSocketService.sendMessageToClient(player.getId(), "exchangeableCards", exchangeableCards);
-
         }
         notifyPlayers("가축 번식 단계 완료. 수확 단계 종료.");
     }
-
-    public void executeExchange(String playerID, String cardID, String fromResource, String toResource, int amount) {
-        Player player = getPlayerByID(playerID);
-        if (player != null) {
-            Card card = getCardByID(cardID);
-            if (card instanceof ExchangeableCard) {
-                player.executeExchange((ExchangeableCard) card, fromResource, toResource, amount);
-            }
-        }
-    }
-
-    public void purchaseMajorImprovementCard(String playerID, String cardID) {
-        Player player = getPlayerByID(playerID);
-        if (player != null) {
-            Card card = getCardByID(cardID);
-            if (card instanceof MajorImprovementCard) {
-                player.useMajorImprovementCard((MajorImprovementCard) card);
-            }
-        }
-    }
-
-    public void bakeBread(String playerID, String cardID, Map<String, Integer> exchangeRate) {
-        Player player = getPlayerByID(playerID);
-        if (player != null) {
-            MajorImprovementCard card = (MajorImprovementCard) getCardByID(cardID);
-            if (card != null && card.hasBreadBakingFunction()) {
-                player.bakeBread(card, exchangeRate);
-            }
-        }
-    }
-
 
     private Map<String, Integer> countAnimals(Player player) {
         Map<String, Integer> animalCounts = new HashMap<>();
@@ -301,7 +261,7 @@ public class GameController {
 
     public void executeCard(String playerID, String cardID) {
         Player player = getPlayerByID(playerID);
-        Card card = getCardByID(cardID);
+        CommonCard card = getCardByID(cardID);
         card.execute(player);
     }
 
@@ -314,7 +274,7 @@ public class GameController {
         return null;
     }
 
-    private Card getCardByID(String cardID) {
+    private CommonCard getCardByID(String cardID) {
         return null;
     }
 
@@ -328,5 +288,48 @@ public class GameController {
 
     public List<Player> getPlayers() {
         return players;
+    }
+
+    public void purchaseMajorImprovementCard(Player player, int cardId) {
+        List<CommonCard> majorImprovementCards = mainBoard.getMajorImprovementCards();
+        MajorImprovementCard cardToPurchase = null;
+
+        for (CommonCard card : majorImprovementCards) {
+            if (card.getId() == cardId && card instanceof MajorImprovementCard) {
+                cardToPurchase = (MajorImprovementCard) card;
+                break;
+            }
+        }
+
+        if (cardToPurchase != null && player.checkResources(cardToPurchase.getPurchaseCost())) {
+            player.payResources(cardToPurchase.getPurchaseCost());
+            player.addMajorImprovementCard(cardToPurchase);
+            mainBoard.removeMajorImprovementCard(cardToPurchase);
+            if (cardToPurchase.hasImmediateBakingAction()) {
+                cardToPurchase.triggerBreadBaking(player);
+            }
+        } else {
+//            notifyPlayer(player, "자원이 부족하여 주요 설비 카드를 구매할 수 없습니다.");
+        }
+    }
+
+
+    public void executeExchange(String playerId, int cardId, String fromResource, String toResource, int amount) {
+        Player player = getPlayerByID(playerId);
+        List<CommonCard> majorImprovementCards = player.getMajorImprovementCards();
+        ExchangeableCard cardToUse = null;
+
+        for (CommonCard card : majorImprovementCards) {
+            if (card.getId() == cardId && card instanceof ExchangeableCard) {
+                cardToUse = (ExchangeableCard) card;
+                break;
+            }
+        }
+
+        if (cardToUse != null && cardToUse.canExchange(ExchangeTiming.ANYTIME)) {
+            cardToUse.executeExchange(player, fromResource, toResource, amount);
+        } else {
+            notifyPlayers("교환 기능을 사용할 수 없습니다.");
+        }
     }
 }

@@ -3,7 +3,7 @@ package models;
 public class FieldTile implements Tile {
     private int crops;
 
-    public FieldTile(int initialCrops) {
+    public FieldTile(int x, int y, int initialCrops) {
         this.crops = initialCrops;
     }
 
