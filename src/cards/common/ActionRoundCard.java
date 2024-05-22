@@ -8,6 +8,7 @@ import models.Player;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 public interface ActionRoundCard extends CommonCard {
@@ -128,8 +129,17 @@ public interface ActionRoundCard extends CommonCard {
     }
 
     // TODO 울타리 치기
-    default void buildFence(Player player, int startX, int startY, int endX, int endY) {
-        player.getPlayerBoard().buildFence(startX, startY, endX, endY);
+    default void buildFence(Player player, int x, int y) {
+        if (player.selectFenceTile(x, y)) {
+            Set<int[]> validPositions = player.getPlayerBoard().getValidFencePositions();
+            // validPositions를 플레이어에게 제공하여 다음 위치를 선택하게 함
+        } else {
+            System.out.println("울타리를 선택하지 못했습니다.");
+        }
+    }
+
+    default boolean finalizeFenceBuilding(Player player) {
+        return player.finalizeFenceBuilding();
     }
 
     // 곡식 심기

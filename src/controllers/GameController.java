@@ -185,15 +185,13 @@ public class GameController {
         return foodNeeded;
     }
 
-    // TODO
+    // 동물 번식 단계를 구현
     private void breedAnimalsPhase() {
         for (Player player : players) {
-            List<Animal> newAnimals = new ArrayList<>();
-            Map<String, Integer> animalCounts = countAnimals(player);
-
-            for (Map.Entry<String, Integer> entry : animalCounts.entrySet()) {
-                if (entry.getValue() >= 2) {
-//                    newAnimals.add(new Animal(entry.getKey()));
+            List<Animal> newAnimals = player.getPlayerBoard().breedAnimals();
+            for (Animal animal : newAnimals) {
+                if (!player.addNewAnimal(animal)) {
+                    System.out.println(animal.getType() + " 방생됨.");
                 }
             }
             List<ExchangeableCard> exchangeableCards = player.getExchangeableCards(ExchangeTiming.HARVEST);

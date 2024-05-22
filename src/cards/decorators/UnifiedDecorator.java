@@ -101,8 +101,8 @@ public abstract class UnifiedDecorator implements AccumulativeCard {
     }
 
     @Override
-    public void buildFence(Player player, int startX, int startY, int endX, int endY) {
-        decoratedCard.buildFence(player, startX, startY, endX, endY);
+    public void buildFence(Player player, int x, int y) {
+        decoratedCard.buildFence(player, x, y);
     }
 
     @Override

@@ -288,6 +288,13 @@ public class Player {
         System.out.println("새로운 동물이 추가되었습니다. 울타리나 집에 배치하세요.");
     }
 
+    // 새 동물을 추가하는 메서드
+    public boolean addNewAnimal(Animal animal) {
+        newAnimals.add(animal);
+        System.out.println(animal.getType() + " 새끼 동물이 추가되었습니다. 울타리나 방에 배치하세요.");
+        return true;
+    }
+
     // 새 동물을 울타리나 방에 배치하는 메서드
     public void placeAnimalOnBoard(Animal animal, int x, int y) {
         if (playerBoard.canPlaceAnimal(x, y, animal.getType())) {
@@ -296,7 +303,12 @@ public class Player {
         } else {
             System.out.println("해당 위치에는 동물을 배치할 수 없습니다.");
         }
+    }
 
+
+    // 울타리의 동물 수용 용량을 계산하는 메서드
+    public int calculateTotalAnimalCapacity() {
+        return playerBoard.getAnimalCapacity();
     }
 
     public void renovateHouse(RoomType newType) {
@@ -339,5 +351,49 @@ public class Player {
     }
 
 
+    // 울타리 설치할 좌표 리스트
+    private List<int[]> fenceCoordinates = new ArrayList<>();
+
+    // 울타리 한 칸을 선택하는 메서드
+    public boolean selectFenceTile(int x, int y) {
+        int requiredWood = calculateRequiredWoodForSingleTile(x, y);
+        if (checkResources(Map.of("wood", requiredWood))) {
+            fenceCoordinates.add(new int[]{x, y});
+            return true;
+        } else {
+            System.out.println("나무 자원이 부족합니다.");
+            return false;
+        }
+    }
+
+    // 울타리 설치를 완료하고 자원을 지불하는 메서드
+    public boolean finalizeFenceBuilding() {
+        int totalRequiredWood = 0;
+        for (int[] coord : fenceCoordinates) {
+            totalRequiredWood += calculateRequiredWoodForSingleTile(coord[0], coord[1]);
+        }
+
+        if (checkResources(Map.of("wood", totalRequiredWood))) {
+            payResources(Map.of("wood", totalRequiredWood));
+            for (int[] coord : fenceCoordinates) {
+                playerBoard.buildFence(coord[0], coord[1]);
+            }
+            fenceCoordinates.clear();
+            return true;
+        } else {
+            System.out.println("나무 자원이 부족합니다.");
+            return false;
+        }
+    }
+
+    // 울타리 한 칸을 설치하는 데 필요한 나무 자원의 양을 계산하는 메서드
+    private int calculateRequiredWoodForSingleTile(int x, int y) {
+        int segments = 0;
+        if (x > 0 && !playerBoard.hasFence(x - 1, y)) segments++;
+        if (x < playerBoard.getTiles().length - 1 && !playerBoard.hasFence(x + 1, y)) segments++;
+        if (y > 0 && !playerBoard.hasFence(x, y - 1)) segments++;
+        if (y < playerBoard.getTiles()[0].length - 1 && !playerBoard.hasFence(x, y + 1)) segments++;
+        return segments;
+    }
 
 }
