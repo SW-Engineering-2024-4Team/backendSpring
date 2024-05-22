@@ -150,10 +150,24 @@ public interface ActionRoundCard extends CommonCard {
     }
 
     // 기물 변경
-
-    // TODO  집 변경
     default void renovateRooms(Player player) {
-        player.getPlayerBoard().changeHouse();
+        /**
+         * 집 고치기(방 업그레이드)
+         * 설명: 자원을 지불하고 나무 집을 흙 집으로, 흙 집을 돌 집으로 업그레이드합니다.
+         * 집 타입 자체가 발생하는 효과는 없지만, 추후 점수 계산시에 높은 등급의 집일수록 높은 점수를 받음.
+         * 흐름:
+         * 1. 플레이어의 방 타입을 확인(나무, 흙) // 돌 집은 더 이상 업그레이드를 할 수 없음.
+         * getTiles? or 적절한 메서드 사용
+         * 2. 플레이어의 자원이 충분한지 확인(집 개수 * 업그레이드 할 타입의 자원) 예: 나무->흙일시 흙 * 플레이어의 방 수
+         * getResource->payResource
+         * 집을 고칠 땐, 모든 집의 타입을 한번에 바꿔야 한다.
+         * 3. 이전 집의 정보는 그대로 받은 채 집 타입만 업그레이드가 됨.
+         * 플레이어 보드의 타일을 순회하며 Room 인스턴스일 경우  Room 클래스의 setType()을 사용해서 업그레이드
+         *
+         *
+        * */
+        RoomType newType = player.chooseRoomTypeForRenovation();
+        player.renovateHouse(newType);
     }
 
 //    // 자원 체크 및 지불

@@ -2,6 +2,7 @@ package models;
 
 import enums.RoomType;
 
+import java.util.HashMap;
 import java.util.Map;
 
 public class PlayerBoard {
@@ -187,6 +188,58 @@ public class PlayerBoard {
         animal.setY(-1);
         // 동물을 리스트나 맵에 추가하는 로직 필요
     }
+
+    public void renovateRooms(RoomType newType, Player player) {
+        int roomCount = 0;
+        RoomType currentType;
+
+        // 1. 현재 방의 타입을 확인하고 업그레이드할 수 있는 방의 수를 계산
+        for (Tile[] row : tiles) {
+            for (Tile tile : row) {
+                if (tile instanceof Room) {
+                    Room room = (Room) tile;
+                    currentType = room.getType();
+                    if (currentType == RoomType.WOOD && newType == RoomType.CLAY) {
+                        roomCount++;
+                    } else if (currentType == RoomType.CLAY && newType == RoomType.STONE) {
+                        roomCount++;
+                    }
+                }
+            }
+        }
+
+        if (roomCount == 0) {
+            System.out.println("업그레이드할 수 있는 방이 없습니다.");
+            return;
+        }
+
+        // 2. 자원이 충분한지 확인
+        Map<String, Integer> cost = new HashMap<>();
+        cost.put(newType.name().toLowerCase(), roomCount); // 방 수만큼 자원 필요
+        if (player.checkResources(cost)) {
+            player.payResources(cost);
+
+            // 3. 방 타입 업그레이드
+            for (Tile[] row : tiles) {
+                for (Tile tile : row) {
+                    if (tile instanceof Room) {
+                        Room room = (Room) tile;
+                        currentType = room.getType();
+                        if (currentType == RoomType.WOOD && newType == RoomType.CLAY) {
+                            room.setType(newType);
+                        } else if (currentType == RoomType.CLAY && newType == RoomType.STONE) {
+                            room.setType(newType);
+                        }
+                    }
+                }
+            }
+        } else {
+            System.out.println("자원이 부족하여 집을 고칠 수 없습니다.");
+        }
+    }
+
+
+
 
 
 

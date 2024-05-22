@@ -298,4 +298,46 @@ public class Player {
         }
 
     }
+
+    public void renovateHouse(RoomType newType) {
+        playerBoard.renovateRooms(newType, this);
+    }
+
+    public RoomType chooseRoomTypeForRenovation() {
+        // 게임 로직에 따라 플레이어가 업그레이드할 방 타입을 선택하는 로직
+        // 예시로는 나무에서 흙, 흙에서 돌로 업그레이드 가능하도록 구현
+        List<RoomType> upgradeOptions = new ArrayList<>();
+        if (hasWoodRooms()) {
+            upgradeOptions.add(RoomType.CLAY);
+        }
+        if (hasClayRooms()) {
+            upgradeOptions.add(RoomType.STONE);
+        }
+        return upgradeOptions.get(0);
+    }
+
+    private boolean hasWoodRooms() {
+        for (Tile[] row : playerBoard.getTiles()) {
+            for (Tile tile : row) {
+                if (tile instanceof Room && ((Room) tile).getType() == RoomType.WOOD) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    private boolean hasClayRooms() {
+        for (Tile[] row : playerBoard.getTiles()) {
+            for (Tile tile : row) {
+                if (tile instanceof Room && ((Room) tile).getType() == RoomType.CLAY) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+
+
 }
