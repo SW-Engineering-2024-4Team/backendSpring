@@ -1,5 +1,6 @@
 package controllers;
 
+import cards.common.ActionRoundCard;
 import cards.common.CommonCard;
 import cards.factory.CardFactory;
 
@@ -56,18 +57,22 @@ public class CardController {
         Collections.shuffle(deck);
     }
 
-    public List<List<CommonCard>> getShuffledRoundCardsByCycle() {
-        List<List<CommonCard>> cycles = new ArrayList<>();
+    public List<List<ActionRoundCard>> getShuffledRoundCardsByCycle() {
+        List<List<ActionRoundCard>> cycles = new ArrayList<>();
         int[] roundsPerCycle = {4, 3, 2, 2, 2, 1};
         int startIndex = 0;
 
         for (int rounds : roundsPerCycle) {
-            List<CommonCard> cycle = new ArrayList<>(roundCards.subList(startIndex, startIndex + rounds));
-            shuffleDeck(cycle);
+            List<ActionRoundCard> cycle = new ArrayList<>();
+            for (CommonCard card : roundCards.subList(startIndex, startIndex + rounds)) {
+                cycle.add((ActionRoundCard) card);
+            }
+            Collections.shuffle(cycle); // 주기 내 카드 섞기
             cycles.add(cycle);
             startIndex += rounds;
         }
 
         return cycles;
     }
+
 }

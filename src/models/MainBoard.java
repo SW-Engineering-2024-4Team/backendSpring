@@ -13,13 +13,14 @@ public class MainBoard {
     private List<ActionRoundCard> roundCards;
     private List<CommonCard> majorImprovementCards;
 
-    public void initializeBoard(List<CommonCard> actionCards, List<List<CommonCard>> roundCycles, List<CommonCard> majorImprovementCards) {
+    public void initializeBoard(List<CommonCard> actionCards, List<List<ActionRoundCard>> roundCycles, List<CommonCard> majorImprovementCards) {
         this.actionCards = actionCards;
         this.roundCards = new ArrayList<>();
-        for (List<CommonCard> cycle : roundCycles) {
-            this.roundCards.addAll((Collection<? extends ActionRoundCard>) cycle);
+        for (List<ActionRoundCard> cycle : roundCycles) {
+            this.roundCards.addAll(cycle);
         }
         this.majorImprovementCards = majorImprovementCards;
+
     }
 
     public void revealRoundCard(int round) {

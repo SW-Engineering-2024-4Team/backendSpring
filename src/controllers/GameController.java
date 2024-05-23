@@ -68,17 +68,22 @@ public class GameController {
         cardController.shuffleDeck(occupationDeck);
         cardController.shuffleDeck(minorImprovementDeck);
 
-        for (Player player : players) {
-            for (int j = 0; j < 7; j++) {
-                player.addCard(occupationDeck.get(j), "occupation");
-                player.addCard(minorImprovementDeck.get(j), "minorImprovement");
-            }
+        int numPlayers = players.size();
+
+        // 직업 카드 분배
+        for (int i = 0; i < 8; i++) {
+            players.get(i % numPlayers).addCard(occupationDeck.get(i), "occupation");
+        }
+
+        // 보조 설비 카드 분배
+        for (int i = 0; i < 8; i++) {
+            players.get(i % numPlayers).addCard(minorImprovementDeck.get(i), "minorImprovement");
         }
     }
 
     private void setupMainBoard() {
         List<CommonCard> actionCards = cardController.getDeck("actionCards");
-        List<List<CommonCard>> roundCycles = cardController.getShuffledRoundCardsByCycle();
+        List<List<ActionRoundCard>> roundCycles = cardController.getShuffledRoundCardsByCycle();
         List<CommonCard> majorImprovementCards = cardController.getDeck("majorImprovementCards");
 
         mainBoard.initializeBoard(actionCards, roundCycles, majorImprovementCards);
