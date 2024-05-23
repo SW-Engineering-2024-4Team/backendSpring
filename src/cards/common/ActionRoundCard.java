@@ -9,6 +9,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public interface ActionRoundCard extends CommonCard {
+
     boolean isRevealed(); // RoundCard와 ActionCard 구분을 위해 추가
     void reveal(); // 라운드 카드를 공개하는 메서드
     boolean isAccumulative(); // 누적 가능한지 여부 확인 메서드

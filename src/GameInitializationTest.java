@@ -1,3 +1,4 @@
+import cards.common.ActionRoundCard;
 import cards.common.CommonCard;
 import controllers.GameController;
 import controllers.RoomController;
@@ -29,8 +30,8 @@ public class GameInitializationTest {
         }
 
         // 메인 보드의 카드 배치 상태 확인
-        System.out.println("Main Board Action Cards: " + getCardNames(gameController.getMainBoard().getActionCards()));
-        System.out.println("Main Board Round Cards: " + getCardNames(gameController.getMainBoard().getRoundCards()));
+        System.out.println("Main Board Action Cards: " + getActionRoundCardNames(gameController.getMainBoard().getActionCards()));
+        System.out.println("Main Board Round Cards: " + getActionRoundCardNames(gameController.getMainBoard().getRoundCards()));
         System.out.println("Main Board Major Improvement Cards: " + getCardNames(gameController.getMainBoard().getMajorImprovementCards()));
     }
 
@@ -46,6 +47,14 @@ public class GameInitializationTest {
     private static List<String> getCardNames(List<? extends CommonCard> cards) {
         List<String> cardNames = new ArrayList<>();
         for (CommonCard card : cards) {
+            cardNames.add(card.getName());
+        }
+        return cardNames;
+    }
+
+    private static List<String> getActionRoundCardNames(List<? extends ActionRoundCard> cards) {
+        List<String> cardNames = new ArrayList<>();
+        for (ActionRoundCard card : cards) {
             cardNames.add(card.getName());
         }
         return cardNames;

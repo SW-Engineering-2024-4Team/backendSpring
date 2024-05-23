@@ -65,14 +65,27 @@ public class CardController {
         for (int rounds : roundsPerCycle) {
             List<ActionRoundCard> cycle = new ArrayList<>();
             for (CommonCard card : roundCards.subList(startIndex, startIndex + rounds)) {
-                cycle.add((ActionRoundCard) card);
+                if (card instanceof ActionRoundCard) {
+                    cycle.add((ActionRoundCard) card);
+                }
             }
-            Collections.shuffle(cycle); // 주기 내 카드 섞기
+            Collections.shuffle(cycle);
             cycles.add(cycle);
             startIndex += rounds;
         }
 
         return cycles;
     }
+
+    public List<ActionRoundCard> getActionRoundCards() {
+        List<ActionRoundCard> actionRoundCards = new ArrayList<>();
+        for (CommonCard card : actionCards) {
+            if (card instanceof ActionRoundCard) {
+                actionRoundCards.add((ActionRoundCard) card);
+            }
+        }
+        return actionRoundCards;
+    }
+
 
 }

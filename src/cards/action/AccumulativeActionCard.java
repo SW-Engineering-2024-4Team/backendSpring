@@ -24,6 +24,7 @@ public class AccumulativeActionCard implements AccumulativeCard {
     @Override
     public void execute(Player player) {
         // 액션 카드 실행 로직
+        System.out.println("executed");
     }
 
     @Override
