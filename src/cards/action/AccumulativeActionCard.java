@@ -12,6 +12,7 @@ public class AccumulativeActionCard implements AccumulativeCard {
     public String name;
     private String description;
     private boolean revealed;
+    private boolean occupied; // 카드의 점유 상태
     private Map<String, Integer> accumulatedResources;
 
     public AccumulativeActionCard(int id, String name, String description) {
@@ -19,6 +20,7 @@ public class AccumulativeActionCard implements AccumulativeCard {
         this.name = name;
         this.description = description;
         this.revealed = false;
+        this.occupied = false;
         this.accumulatedResources = new HashMap<>();
     }
 
@@ -56,6 +58,16 @@ public class AccumulativeActionCard implements AccumulativeCard {
     @Override
     public boolean isAccumulative() {
         return true; // 자원 누적 가능
+    }
+
+    @Override
+    public boolean isOccupied() {
+        return occupied;
+    }
+
+    @Override
+    public void setOccupied(boolean occupied) {
+        this.occupied = occupied;
     }
 
     @Override

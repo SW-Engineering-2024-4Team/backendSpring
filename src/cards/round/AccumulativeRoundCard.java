@@ -14,6 +14,7 @@ public class AccumulativeRoundCard implements AccumulativeCard {
     private String description;
     private int cycle;
     private boolean revealed;
+    private boolean occupied;
     private Map<String, Integer> accumulatedResources;
 
     public AccumulativeRoundCard(int id, String name, String description, int cycle) {
@@ -22,6 +23,7 @@ public class AccumulativeRoundCard implements AccumulativeCard {
         this.description = description;
         this.cycle = cycle;
         this.revealed = false;
+        this.occupied = true;
         this.accumulatedResources = new HashMap<>();
     }
 
@@ -74,6 +76,17 @@ public class AccumulativeRoundCard implements AccumulativeCard {
     public void clearAccumulatedResources() {
         accumulatedResources.clear();
     }
+
+    @Override
+    public boolean isOccupied() {
+        return occupied;
+    }
+
+    @Override
+    public void setOccupied(boolean occupied) {
+        this.occupied = occupied;
+    }
+
 
 //    @Override
 //    public boolean equals(Object o) {

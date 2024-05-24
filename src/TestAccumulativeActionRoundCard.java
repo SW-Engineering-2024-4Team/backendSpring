@@ -10,6 +10,7 @@ public class TestAccumulativeActionRoundCard implements ActionRoundCard, Accumul
     private String name;
     private String description;
     private boolean revealed;
+    private boolean occupied;
     private Map<String, Integer> accumulatedResources;
 
     public TestAccumulativeActionRoundCard(int id, String name, String description) {
@@ -17,6 +18,7 @@ public class TestAccumulativeActionRoundCard implements ActionRoundCard, Accumul
         this.name = name;
         this.description = description;
         this.revealed = false;
+        this.occupied = false;
         this.accumulatedResources = new HashMap<>();
     }
 
@@ -56,6 +58,16 @@ public class TestAccumulativeActionRoundCard implements ActionRoundCard, Accumul
     @Override
     public boolean isAccumulative() {
         return true;
+    }
+
+    @Override
+    public boolean isOccupied() {
+        return occupied;
+    }
+
+    @Override
+    public void setOccupied(boolean occupied) {
+        this.occupied = occupied;
     }
 
     @Override

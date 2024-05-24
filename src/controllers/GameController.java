@@ -167,39 +167,6 @@ public class GameController {
         resetFamilyMembers();
     }
 
-
-
-//    private void playerTurn(String playerID) {
-//        Player player = getPlayerByID(playerID);
-//
-//        // TODO 카드 선택 로직
-//        if (player != null) {
-//            List<ActionRoundCard> availableCards = new ArrayList<>();
-//            availableCards.addAll(mainBoard.getActionCards());
-//            availableCards.addAll(mainBoard.getRevealedRoundCards());
-//            availableCards.removeIf(card -> mainBoard.isCardOccupied(card));
-//
-//            System.out.println("Available cards before selection:");
-//            for (ActionRoundCard card : availableCards) {
-//                System.out.println("  Card: " + card.getName() + " (Occupied: " + mainBoard.isCardOccupied(card) + ")");
-//            }
-//
-//            if (!availableCards.isEmpty()) {
-//                Random rand = new Random();
-//                ActionRoundCard selectedCard = availableCards.get(rand.nextInt(availableCards.size()));
-//                player.placeFamilyMember(selectedCard);
-//
-//                System.out.println("Available cards after selection:");
-//                for (ActionRoundCard card : availableCards) {
-//                    System.out.println("  Card: " + card.getName() + " (Occupied: " + mainBoard.isCardOccupied(card) + ")");
-//                }
-//
-//            } else {
-//                System.out.println("No available cards for player " + playerID);
-//            }
-//        }
-//    }
-
     private void playerTurn(String playerID) {
         Player player = getPlayerByID(playerID);
 
@@ -239,12 +206,11 @@ public class GameController {
         return true;
     }
 
-    private void resetFamilyMembers() {
-        for (Player player : players) {
+    public void resetFamilyMembers() {
+        for (Player player : turnOrder) {
             player.resetFamilyMembers();
         }
-        mainBoard.resetFamilyMembersOnCards();  // 메인 보드에서 카드 위의 가족 구성원 초기화
-        System.out.println("All family members have returned home.");
+        mainBoard.resetFamilyMembersOnCards();
     }
 
     public void harvestPhase() {

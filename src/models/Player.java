@@ -94,21 +94,6 @@ public class Player {
         this.score = score;
     }
 
-    public boolean hasAvailableFamilyMembers() {
-        for (FamilyMember[] row : playerBoard.getFamilyMembers()) {
-            System.out.println("available family member for player " + this.id + " who " + playerBoard.getFamilyMembers());
-            for (FamilyMember member : row) {
-                if (member != null && member.isAdult() && !member.isUsed()) {
-                    System.out.println("Available family member found for player " + this.id + " at (" + member.getX() + ", " + member.getY() + ")");
-                    return true;
-                }
-            }
-        }
-        System.out.println("No available family members for player " + this.id);
-        return false;
-    }
-
-
 //    public void placeFamilyMember(ActionRoundCard card) {
 //        FamilyMember[][] familyMembers = playerBoard.getFamilyMembers();
 //        // TODO 가족 선택 로직
@@ -144,7 +129,7 @@ public class Player {
                     System.out.println("Placing family member at (" + i + ", " + j + ") for player " + this.id);
                     card.execute(this);
                     selectedMember.setUsed(true);
-                    gameController.getMainBoard().placeFamilyMember(card, selectedMember);
+                    gameController.getMainBoard().placeFamilyMember(card);
                     System.out.println("Player " + this.id + " placed a family member on card: " + card.getName());
                     System.out.println("Family member used status: " + selectedMember.isUsed());
                     return;
@@ -153,52 +138,6 @@ public class Player {
         }
         System.out.println("No available family member found for player " + this.id);
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    public FamilyMember getAvailableFamilyMember() {
-        for (FamilyMember[] row : playerBoard.getFamilyMembers()) {
-            for (FamilyMember member : row) {
-                if (member != null && member.isAdult()) {
-                    return member;
-                }
-            }
-        }
-        return null;
-    }
-
-//    public void resetFamilyMembers() {
-//        playerBoard.resetFamilyMembers();
-//        MainBoard mainBoard = gameController.getMainBoard();
-//        for (ActionRoundCard card : mainBoard.getActionCards()) {
-//            FamilyMember member = mainBoard.getOccupyingFamilyMember(card);
-//            if (member != null) {
-//                member.resetPosition();
-//                playerBoard.addFamilyMemberToBoard(member, member.getOriginalX(), member.getOriginalY());
-//                mainBoard.setOccupyingFamilyMember(card, null);
-//            }
-//        }
-//        for (ActionRoundCard card : mainBoard.getRoundCards()) {
-//            FamilyMember member = mainBoard.getOccupyingFamilyMember(card);
-//            if (member != null) {
-//                member.resetPosition();
-//                playerBoard.addFamilyMemberToBoard(member, member.getOriginalX(), member.getOriginalY());
-//                mainBoard.setOccupyingFamilyMember(card, null);
-//            }
-//        }
-//    }
 
     public void resetFamilyMembers() {
         FamilyMember[][] familyMembers = playerBoard.getFamilyMembers();
@@ -211,9 +150,32 @@ public class Player {
                 }
             }
         }
-        gameController.getMainBoard().resetFamilyMembersOnCards();
-        System.out.println("All family members have returned home for player " + this.id);
     }
+    public boolean hasAvailableFamilyMembers() {
+        for (FamilyMember[] row : playerBoard.getFamilyMembers()) {
+            for (FamilyMember member : row) {
+                if (member != null && member.isAdult() && !member.isUsed()) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+//    public void resetFamilyMembers() {
+//        FamilyMember[][] familyMembers = playerBoard.getFamilyMembers();
+//        for (FamilyMember[] row : familyMembers) {
+//            for (FamilyMember familyMember : row) {
+//                if (familyMember != null) {
+//                    familyMember.setUsed(false);
+//                    familyMember.resetPosition();
+//                    System.out.println("Reset family member at (" + familyMember.getOriginalX() + ", " + familyMember.getOriginalY() + ") for player " + this.id);
+//                }
+//            }
+//        }
+//        gameController.getMainBoard().resetFamilyMembersOnCards();
+//        System.out.println("All family members have returned home for player " + this.id);
+//    }
 
 
 

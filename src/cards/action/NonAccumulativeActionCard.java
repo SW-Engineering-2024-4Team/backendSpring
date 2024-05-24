@@ -10,12 +10,14 @@ public class NonAccumulativeActionCard implements ActionRoundCard {
     public String name;
     private String description;
     private boolean revealed;
+    private boolean occupied;
 
     public NonAccumulativeActionCard(int id, String name, String description) {
         this.id = id;
         this.name = name;
         this.description = description;
         this.revealed = false;
+        this.occupied = false;
     }
 
     @Override
@@ -52,6 +54,16 @@ public class NonAccumulativeActionCard implements ActionRoundCard {
     @Override
     public boolean isAccumulative() {
         return false; // 자원 누적 불가능
+    }
+
+    @Override
+    public boolean isOccupied() {
+        return occupied;
+    }
+
+    @Override
+    public void setOccupied(boolean occupied) {
+        this.occupied = occupied;
     }
 
 //    @Override
