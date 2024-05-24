@@ -1,3 +1,5 @@
+package test;
+
 import cards.action.AccumulativeActionCard;
 import cards.action.NonAccumulativeActionCard;
 import cards.common.ActionRoundCard;
@@ -51,6 +53,7 @@ public class ResourceGainTest {
         }
     }
 
+    // TODO 양 자원 추가(가족 구성원 추가와 함께 테스트)
     @Test
     public void testGainResources() {
         printPlayerResources("Resources before testGainResources:");
