@@ -40,7 +40,24 @@ public class GameRoundTest {
 
 
         // 1라운드 진행
-        gameController.startGame();
+        gameController.testGame();
+
+        // 모든 플레이어의 상태를 확인
+        for (Player player : gameController.getPlayers()) {
+            System.out.println("Player ID: " + player.getId());
+            System.out.println("Occupation Cards: " + getCardNames(player.getOccupationCards()));
+            System.out.println("Minor Improvement Cards: " + getCardNames(player.getMinorImprovementCards()));
+            System.out.println("Resources: " + player.getResources());
+            System.out.println("Player Board Initialized: " + player.getPlayerBoard().getTiles().length + "x" + player.getPlayerBoard().getTiles()[0].length);
+            System.out.println("Family Members on Board: ");
+            printFamilyMembers(player);
+            System.out.println("----------");
+        }
+
+        // 메인 보드의 카드 배치 상태 확인
+        System.out.println("Main Board Action Cards: " + getCardNames(gameController.getMainBoard().getActionCards()));
+        System.out.println("Main Board Round Cards: " + getCardNames(gameController.getMainBoard().getRoundCards()));
+        System.out.println("Main Board Major Improvement Cards: " + getCardNames(gameController.getMainBoard().getMajorImprovementCards()));
     }
 
     private static List<Player> createMockPlayers() {

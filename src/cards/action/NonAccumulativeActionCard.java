@@ -3,9 +3,11 @@ package cards.action;
 import cards.common.ActionRoundCard;
 import models.Player;
 
+import java.util.Objects;
+
 public class NonAccumulativeActionCard implements ActionRoundCard {
     private int id;
-    private String name;
+    public String name;
     private String description;
     private boolean revealed;
 
@@ -51,4 +53,17 @@ public class NonAccumulativeActionCard implements ActionRoundCard {
     public boolean isAccumulative() {
         return false; // 자원 누적 불가능
     }
+
+//    @Override
+//    public boolean equals(Object o) {
+//        if (this == o) return true;
+//        if (o == null || getClass() != o.getClass()) return false;
+//        AccumulativeActionCard that = (AccumulativeActionCard) o;
+//        return Objects.equals(name, that.name);
+//    }
+//
+//    @Override
+//    public int hashCode() {
+//        return Objects.hash(name);
+//    }
 }

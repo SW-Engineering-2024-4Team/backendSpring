@@ -99,6 +99,24 @@ public class GameController {
             if (isHarvestRound(currentRound)) {
                 System.out.println("Harvest phase triggered at round " + currentRound);
                 harvestPhase();
+            }
+            endRound();
+            System.out.println("Round " + currentRound + " ends.");
+            System.out.println("-------------------------------------------------------------------------------");
+            currentRound++;
+        }
+        endGame();
+    }
+
+    public void testGame() {
+        while (currentRound <= 4) {
+            System.out.println("-------------------------------------------------------------------------------");
+            System.out.println("Round " + currentRound + " starts.");
+            prepareRound();
+            playRound();
+            System.out.println("isHarvestRound(currentRound) = " + isHarvestRound(currentRound));
+            if (isHarvestRound(currentRound)) {
+                System.out.println("Harvest phase triggered at round " + currentRound);
                 harvestPhase();
             }
             endRound();
@@ -109,7 +127,7 @@ public class GameController {
         endGame();
     }
 
-    private void prepareRound() {
+    public void prepareRound() {
         System.out.println("Preparing round " + currentRound);
         mainBoard.revealRoundCard(currentRound);
         mainBoard.accumulateResources();
@@ -122,7 +140,7 @@ public class GameController {
         }
     }
 
-    private void playRound() {
+    public void playRound() {
         System.out.println("Playing round " + currentRound);
         boolean roundFinished = false;
         while (!roundFinished) {
@@ -138,7 +156,7 @@ public class GameController {
                         roundFinished = false;
                         System.out.println("Player " + player.getId() + "'s turn.");
                         playerTurn(player.getId());
-                        printAvailableCards();
+
                         printFamilyMembersOnBoard();
                     } else {
                         System.out.println("No available cards for player " + player.getId());
@@ -150,20 +168,62 @@ public class GameController {
     }
 
 
+
+//    private void playerTurn(String playerID) {
+//        Player player = getPlayerByID(playerID);
+//
+//        // TODO 카드 선택 로직
+//        if (player != null) {
+//            List<ActionRoundCard> availableCards = new ArrayList<>();
+//            availableCards.addAll(mainBoard.getActionCards());
+//            availableCards.addAll(mainBoard.getRevealedRoundCards());
+//            availableCards.removeIf(card -> mainBoard.isCardOccupied(card));
+//
+//            System.out.println("Available cards before selection:");
+//            for (ActionRoundCard card : availableCards) {
+//                System.out.println("  Card: " + card.getName() + " (Occupied: " + mainBoard.isCardOccupied(card) + ")");
+//            }
+//
+//            if (!availableCards.isEmpty()) {
+//                Random rand = new Random();
+//                ActionRoundCard selectedCard = availableCards.get(rand.nextInt(availableCards.size()));
+//                player.placeFamilyMember(selectedCard);
+//
+//                System.out.println("Available cards after selection:");
+//                for (ActionRoundCard card : availableCards) {
+//                    System.out.println("  Card: " + card.getName() + " (Occupied: " + mainBoard.isCardOccupied(card) + ")");
+//                }
+//
+//            } else {
+//                System.out.println("No available cards for player " + playerID);
+//            }
+//        }
+//    }
+
     private void playerTurn(String playerID) {
         Player player = getPlayerByID(playerID);
 
-        // TODO 카드 선택 로직
         if (player != null) {
             List<ActionRoundCard> availableCards = new ArrayList<>();
             availableCards.addAll(mainBoard.getActionCards());
             availableCards.addAll(mainBoard.getRevealedRoundCards());
             availableCards.removeIf(card -> mainBoard.isCardOccupied(card));
 
+            System.out.println("Available cards before selection:");
+            for (ActionRoundCard card : availableCards) {
+                System.out.println("  Card: " + card.getName() + " (Occupied: " + mainBoard.isCardOccupied(card) + ")");
+            }
+
             if (!availableCards.isEmpty()) {
                 Random rand = new Random();
                 ActionRoundCard selectedCard = availableCards.get(rand.nextInt(availableCards.size()));
                 player.placeFamilyMember(selectedCard);
+
+                System.out.println("Available cards after selection:");
+                for (ActionRoundCard card : availableCards) {
+                    System.out.println("  Card: " + card.getName() + " (Occupied: " + mainBoard.isCardOccupied(card) + ")");
+                }
+
             } else {
                 System.out.println("No available cards for player " + playerID);
             }
@@ -389,17 +449,17 @@ public class GameController {
         }
     }
 
-    private void printAvailableCards() {
-        System.out.println("Available cards:");
-        List<ActionRoundCard> availableCards = new ArrayList<>();
-        availableCards.addAll(mainBoard.getActionCards());
-        availableCards.addAll(mainBoard.getRevealedRoundCards());
-        availableCards.removeIf(card -> mainBoard.getOccupyingFamilyMember(card) != null);
-
-        for (ActionRoundCard card : availableCards) {
-            System.out.println("  Card: " + card.getName());
-        }
-    }
+//    private void printAvailableCards() {
+//        System.out.println("Available cards:");
+//        List<ActionRoundCard> availableCards = new ArrayList<>();
+//        availableCards.addAll(mainBoard.getActionCards());
+//        availableCards.addAll(mainBoard.getRevealedRoundCards());
+//        availableCards.removeIf(card -> mainBoard.canPlaceFamilyMember(card));
+//
+//        for (ActionRoundCard card : availableCards) {
+//            System.out.println("  Card: " + card.getName());
+//        }
+//    }
 
     private void printFamilyMembersOnBoard() {
         System.out.println("Family members on board:");
@@ -414,5 +474,9 @@ public class GameController {
                 }
             }
         }
+    }
+
+    public void setMainBoard(MainBoard mainBoard) {
+        this.mainBoard = mainBoard;
     }
 }

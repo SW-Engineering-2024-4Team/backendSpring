@@ -8,6 +8,8 @@ public class FamilyMember {
     private int originalY;  // 원래 y 위치
     private boolean used;
 
+    private Player player;
+
     public FamilyMember(int x, int y, boolean isAdult) {
         this.x = x;
         this.y = y;
@@ -62,4 +64,5 @@ public class FamilyMember {
     public int getOriginalX() {
         return originalX;
     }
+
 }

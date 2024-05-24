@@ -1,10 +1,12 @@
 package cards.round;
 
+import cards.action.AccumulativeActionCard;
 import cards.common.AccumulativeCard;
 import models.Player;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 public class AccumulativeRoundCard implements AccumulativeCard {
     private int id;
@@ -72,4 +74,17 @@ public class AccumulativeRoundCard implements AccumulativeCard {
     public void clearAccumulatedResources() {
         accumulatedResources.clear();
     }
+
+//    @Override
+//    public boolean equals(Object o) {
+//        if (this == o) return true;
+//        if (o == null || getClass() != o.getClass()) return false;
+//        AccumulativeActionCard that = (AccumulativeActionCard) o;
+//        return Objects.equals(name, that.name);
+//    }
+//
+//    @Override
+//    public int hashCode() {
+//        return Objects.hash(name);
+//    }
 }
