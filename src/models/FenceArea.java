@@ -13,10 +13,23 @@ public class FenceArea {
         this.animals = new ArrayList<>();
     }
 
+//    public void addTile(int x, int y, Tile tile) {
+//        tiles.add(new int[]{x, y});
+//        if (tile instanceof Barn) {
+//            barns.add((Barn) tile);
+//        }
+//    }
+
     public void addTile(int x, int y, Tile tile) {
         tiles.add(new int[]{x, y});
         if (tile instanceof Barn) {
             barns.add((Barn) tile);
+            // 외양간에 동물이 있는 경우, 울타리 영역에 동물을 추가
+            Barn barn = (Barn) tile;
+            if (barn.hasAnimal()) {
+                addAnimal(barn.getAnimal());
+                barn.setAnimal(null); // 외양간에서 동물 제거
+            }
         }
     }
 
@@ -68,5 +81,22 @@ public class FenceArea {
 
     public Set<int[]> getTiles() {
         return tiles;
+    }
+
+    public void printFenceAreaDetails() {
+        System.out.println("Fence Area Details:");
+        System.out.println("Tiles:");
+        for (int[] tile : tiles) {
+            System.out.println("Tile at (" + tile[0] + ", " + tile[1] + ")");
+        }
+        System.out.println("Barns:");
+        for (Barn barn : barns) {
+            System.out.println("Barn at (" + barn.getX() + ", " + barn.getY() + ")");
+        }
+        System.out.println("Animals:");
+        for (Animal animal : animals) {
+            System.out.println("Animal: " + animal.getType() + " at (" + animal.getX() + ", " + animal.getY() + ")");
+        }
+        System.out.println("Capacity: " + calculateCapacity());
     }
 }

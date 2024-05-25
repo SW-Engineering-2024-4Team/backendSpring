@@ -615,12 +615,6 @@ public class ConstructionTest {
         assertTrue(fenceBuilt, "A fence should be built at the expected position.");
     }
 
-
-
-
-
-
-
     @Test
     public void testValidFencePositionsWithBarnsAndOneFence() {
         // 플레이어의 자원 설정
@@ -677,54 +671,50 @@ public class ConstructionTest {
         assertTrue(validFencePositionFound, "There should be valid fence positions around the barns and the first fence.");
     }
 
-    // TODO 수용능력 계산
     @Test
-    public void testBuildTwoFences() {
+    public void testValidFencePositionsWithOneFenceAndBarns() {
         // 플레이어의 자원 설정
         player.resetResources();
-        player.addResource("wood", 16); // 울타리를 짓기 위한 나무 자원 추가
+        player.addResource("wood", 12); // 외양간을 짓기 위한 나무 자원 추가 및 울타리를 위한 추가 자원
 
         // 초기 상태 출력
-        printPlayerResources("Resources before building fences:");
-        Set<int[]> validPositions = player.getPlayerBoard().getValidFencePositions();
-        printPlayerBoardWithFences("Player board before building fences:", validPositions);
+        printPlayerResources("Resources before building barns:");
+        Set<int[]> validPositions = player.getPlayerBoard().getValidBarnPositions();
+        printPlayerBoardWithFences("Player board before building barns:", validPositions);
 
-        // 첫 번째 울타리 위치 설정 및 건설
-        List<int[]> firstFencePositions = Arrays.asList(
+        // 울타리 유효 위치 확인
+        validPositions = player.getPlayerBoard().getValidFencePositions();
+        printPlayerBoardWithFences("Player board with valid fence positions:", validPositions);
+
+        // 울타리 위치 설정
+        List<int[]> fencePositions = Arrays.asList(
+                new int[]{1, 1},
                 new int[]{1, 2},
                 new int[]{1, 3}
         );
-        player.getPlayerBoard().buildFences(firstFencePositions, player);
+        player.getPlayerBoard().buildFences(fencePositions, player);
 
-        // 첫 번째 울타리를 지은 후 상태 출력
-        printPlayerResources("Resources after building first fence:");
+        // 울타리를 지은 후 상태 출력
+        printPlayerResources("Resources after building fences:");
         validPositions = player.getPlayerBoard().getValidFencePositions();
-        printPlayerBoardWithFences("Player board after building first fence:", validPositions);
+        printPlayerBoardWithFences("Player board after building fences:", validPositions);
 
-        // 두 번째 울타리 위치 설정 및 건설
-        List<int[]> secondFencePositions = Arrays.asList(
-                new int[]{2, 2},
-                new int[]{2, 3}
-        );
-        player.getPlayerBoard().buildFences(secondFencePositions, player);
+        // 외양간 2개 짓기
+        player.getPlayerBoard().buildBarn(1, 1);
+        player.getPlayerBoard().buildBarn(1, 2);
 
-        // 두 번째 울타리를 지은 후 상태 출력
-        printPlayerResources("Resources after building second fence:");
-        validPositions = player.getPlayerBoard().getValidFencePositions();
-        printPlayerBoardWithFences("Player board after building second fence:", validPositions);
+        // 외양간을 지은 후 상태 출력
+        printPlayerResources("Resources after building barns:");
+        validPositions = player.getPlayerBoard().getValidBarnPositions();
+        printPlayerBoardWithFences("Player board after building barns:", validPositions);
 
-        // 첫 번째 울타리 타일 정보 출력
+        printTileFenceInfo(1, 1);
         printTileFenceInfo(1, 2);
         printTileFenceInfo(1, 3);
-        // 두 번째 울타리 타일 정보 출력
-        printTileFenceInfo(2, 2);
-        printTileFenceInfo(2, 3);
-        // 인접한 타일 정보 출력
-        if (isValidTile(0, 2)) printTileFenceInfo(0, 2);
-        if (isValidTile(1, 1)) printTileFenceInfo(1, 1);
-        if (isValidTile(1, 4)) printTileFenceInfo(1, 4);
-        if (isValidTile(2, 1)) printTileFenceInfo(2, 1);
-        if (isValidTile(2, 4)) printTileFenceInfo(2, 4);
+        printTileFenceInfo(0, 1);
+        printTileFenceInfo(2, 1);
+        printTileFenceInfo(1, 0);
+        printTileFenceInfo(1, 4);
 
         // 검증
         boolean validFencePositionFound = false;
@@ -734,14 +724,73 @@ public class ConstructionTest {
                 break;
             }
         }
-        assertTrue(validFencePositionFound, "There should be valid fence positions around the barns and the fences.");
+        assertTrue(validFencePositionFound, "There should be valid fence positions around the barns and the first fence.");
+    }
 
-        // 각 펜스 영역의 수용 능력 계산 및 출력
-        List<FenceArea> fenceAreas = player.getPlayerBoard().getFenceAreas();
-        for (int i = 0; i < fenceAreas.size(); i++) {
-            int capacity = fenceAreas.get(i).calculateCapacity();
-            System.out.println("Fence Area " + (i + 1) + " Capacity: " + capacity);
-        }
+    @Test
+    public void testBarnAndFenceInteraction() {
+        // 자원 설정
+        player.resetResources();
+        player.addResource("wood", 12); // 외양간을 짓기 위한 나무 자원 추가 및 울타리를 위한 추가 자원
+
+        // 초기 상태 출력
+        printPlayerResources("Resources before building barns:");
+        Set<int[]> validPositions = player.getPlayerBoard().getValidBarnPositions();
+        printPlayerBoardWithFences("Player board before building barns:", validPositions);
+
+        // 외양간 2개 짓기
+        player.getPlayerBoard().buildBarn(1, 1);
+        player.getPlayerBoard().buildBarn(1, 2);
+
+        // 외양간을 지은 후 상태 출력
+        printPlayerResources("Resources after building barns:");
+        validPositions = player.getPlayerBoard().getValidBarnPositions();
+        printPlayerBoardWithFences("Player board after building barns:", validPositions);
+
+        // 울타리 유효 위치 확인
+        validPositions = player.getPlayerBoard().getValidFencePositions();
+        printPlayerBoardWithFences("Player board with valid fence positions:", validPositions);
+
+        // 울타리 위치 설정
+        List<int[]> fencePositions = Arrays.asList(
+                new int[]{1, 1},
+                new int[]{1, 2},
+                new int[]{1, 3}
+        );
+        player.getPlayerBoard().buildFences(fencePositions, player);
+
+        // 울타리를 지은 후 상태 출력
+        printPlayerResources("Resources after building fences:");
+        validPositions = player.getPlayerBoard().getValidFencePositions();
+        printPlayerBoardWithFences("Player board after building fences:", validPositions);
+
+        // 동물 배치
+        Animal sheep1 = new Animal(1, 1, "sheep");
+        player.getPlayerBoard().addAnimalToBoard(sheep1, 1, 1);
+
+        Animal sheep2 = new Animal(1, 2, "sheep");
+        player.getPlayerBoard().addAnimalToBoard(sheep2, 1, 2);
+
+        Animal sheep3 = new Animal(1, 2, "sheep");
+        player.getPlayerBoard().addAnimalToBoard(sheep3, 1, 2);
+
+        Animal sheep4 = new Animal(1, 2, "sheep");
+        player.getPlayerBoard().addAnimalToBoard(sheep4, 1, 2);
+
+        // 동물을 배치한 후 상태 출력
+        printPlayerResources("Resources after adding animals:");
+        validPositions = player.getPlayerBoard().getValidAnimalPositions("sheep");
+        printPlayerBoardWithFences("Player board after adding animals:", validPositions);
+
+        // 수용 능력 확인
+        int capacity = player.getPlayerBoard().getAnimalCapacity();
+        System.out.println("Animal capacity after adding animals and building barn inside fenced area: " + capacity);
+
+        // 울타리 영역 디버깅 정보 출력
+        player.getPlayerBoard().printFenceAreas();
+
+        // 검증
+        assertEquals(32, capacity, "The capacity should be 32 after building barns inside the fenced area and adding animals.");
     }
 
 }
