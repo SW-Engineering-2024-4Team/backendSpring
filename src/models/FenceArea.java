@@ -8,8 +8,8 @@ public class FenceArea {
     private List<Animal> animals;
 
     public FenceArea() {
-        this.tiles = new HashSet<>();
-        this.barns = new HashSet<>();
+        this.tiles = new LinkedHashSet<>();
+        this.barns = new LinkedHashSet<>();
         this.animals = new ArrayList<>();
     }
 

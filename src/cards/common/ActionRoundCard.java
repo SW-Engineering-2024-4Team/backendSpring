@@ -204,38 +204,31 @@ public interface ActionRoundCard extends CommonCard {
 //            System.out.println("울타리를 지을 유효한 위치가 없습니다.");
 //        }
 //    }
-    default void buildFence(Player player) {
-        Set<int[]> validPositions = player.getPlayerBoard().getValidFencePositions();
-//        if (!validPositions.isEmpty()) {
-//            boolean fenceBuildingComplete = false;
-//            while (!fenceBuildingComplete) {
-//                // TODO: 플레이어 좌표 입력 로직
-//                // 예시로 첫 번째 유효 위치 선택
-//                int[] position = validPositions.iterator().next();
-//                player.selectFenceTile(position[0], position[1]);
-//                validPositions = player.getPlayerBoard().getValidFencePositions();
-//                if (validPositions.isEmpty() || player.getResources().getOrDefault("wood", 0) <= 0) {
-//                    fenceBuildingComplete = true;
-//                }
-//            }
-//            int[] position = validPositions.iterator().next();
-//            player.selectFenceTile(position[0], position[1]);
-//        } else {
-//            System.out.println("울타리를 지을 유효한 위치가 없습니다.");
-//        }
-
+// 울타리 짓기
+//    default void buildFence(Player player) {
+//        Set<int[]> validPositions = player.getPlayerBoard().getValidFencePositions();
 //        if (!validPositions.isEmpty()) {
 //            // 예시로 첫 번째 유효 위치 선택
 //            int[] position = validPositions.iterator().next();
 //            List<int[]> fencePositions = new ArrayList<>();
 //            fencePositions.add(position);
 //            player.getPlayerBoard().buildFences(fencePositions);
-//            player.reduceResource("wood", player.getPlayerBoard().calculateRequiredWoodForFences(fencePositions));
+//            player.payResources(Map.of("wood", player.getPlayerBoard().calculateRequiredWoodForFences(fencePositions)));
 //            System.out.println("Fence built at: " + Arrays.toString(position));
 //        } else {
 //            System.out.println("울타리를 지을 유효한 위치가 없습니다.");
 //        }
+//    }
+
+    default void buildFence(Player player) {
+        // TODO 프론트랑 좌표 통신
+        List<int[]> selectedPositions = new ArrayList<>();
+        selectedPositions.add(new int[]{1, 1});
+        selectedPositions.add(new int[]{1, 2});
+        selectedPositions.add(new int[]{1, 3});
+        player.getPlayerBoard().buildFences(selectedPositions, player);
     }
+
 
 
     // 곡식 심기

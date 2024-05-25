@@ -68,26 +68,35 @@ public class ConstructionTest {
 //            System.out.println();
 //        }
 //    }
-    private void printPlayerBoardWithFences(String message, Set<int[]> validPositions) {
+    // 타일과 울타리를 시각화하는 메서드
+    public void printPlayerBoardWithFences(String message, Set<int[]> validPositions) {
         System.out.println(message);
         Tile[][] tiles = player.getPlayerBoard().getTiles();
-        boolean[][] fences = player.getPlayerBoard().getFences();
+        boolean[][][] fences = player.getPlayerBoard().getFences();
         int rows = tiles.length;
         int cols = tiles[0].length;
 
-        // Print top border of the board
-        System.out.print("   ");
-        for (int j = 0; j < cols; j++) {
-            System.out.print("   " + countFence(fences, -1, j) + "   ");
-        }
-        System.out.println();
-
+        // Print the top boundary of the board
         for (int i = 0; i < rows; i++) {
-            // Print left border of the row
-            System.out.print(countFence(fences, i, -1) + " ");
-
-            // Print tiles and vertical fences
+            // Print top fences
             for (int j = 0; j < cols; j++) {
+                System.out.print("+");
+                if (fences[i][j][0]) {
+                    System.out.print("---");
+                } else {
+                    System.out.print("   ");
+                }
+            }
+            System.out.println("+");
+
+            // Print left fences and tiles
+            for (int j = 0; j < cols; j++) {
+                if (fences[i][j][2]) {
+                    System.out.print("|");
+                } else {
+                    System.out.print(" ");
+                }
+
                 boolean isValidPosition = false;
                 for (int[] pos : validPositions) {
                     if (pos[0] == i && pos[1] == j) {
@@ -98,61 +107,60 @@ public class ConstructionTest {
 
                 if (tiles[i][j] == null) {
                     if (isValidPosition) {
-                        System.out.print("[*]");
+                        System.out.print("  *  ");
                     } else {
-                        System.out.print("[  ]");
+                        System.out.print("   ");
                     }
                 } else if (tiles[i][j] instanceof Room) {
-                    System.out.print("[R]");
+                    System.out.print(" R ");
                 } else if (tiles[i][j] instanceof Barn) {
-                    System.out.print("[B]");
+                    System.out.print(" B ");
                 } else if (tiles[i][j] instanceof FieldTile) {
-                    System.out.print("[F]");
-                }
-
-                if (j < cols - 1) {
-                    System.out.print(" " + countFence(fences, i, j) + " ");
+                    System.out.print(" F ");
                 }
             }
-
-            // Print right border of the row
-            System.out.print(" " + countFence(fences, i, cols - 1));
+            if (fences[i][cols - 1][3]) {
+                System.out.print("|");
+            }
             System.out.println();
+        }
 
-            // Print horizontal fences
-            if (i < rows - 1) {
+        // Print the bottom boundary of the board
+        for (int j = 0; j < cols; j++) {
+            System.out.print("+");
+            if (fences[rows - 1][j][1]) {
+                System.out.print("---");
+            } else {
                 System.out.print("   ");
-                for (int j = 0; j < cols; j++) {
-                    System.out.print("   " + countFence(fences, i, j) + "   ");
-                }
-                System.out.println();
             }
         }
-
-        // Print bottom border of the board
-        System.out.print("   ");
-        for (int j = 0; j < cols; j++) {
-            System.out.print("   " + countFence(fences, rows - 1, j) + "   ");
-        }
-        System.out.println();
+        System.out.println("+");
     }
 
-    private int countFence(boolean[][] fences, int row, int col) {
+
+
+
+    // Fence를 카운트하는 메서드 수정
+    private int countFence(boolean[][][] fences, int row, int col) {
         int count = 0;
         if (row >= 0 && col >= 0 && row < fences.length && col < fences[0].length) {
-            if (fences[row][col]) count++;
+            if (fences[row][col][0]) count++; // 상단 울타리
+            if (fences[row][col][1]) count++; // 하단 울타리
+            if (fences[row][col][2]) count++; // 좌측 울타리
+            if (fences[row][col][3]) count++; // 우측 울타리
         }
         if (row >= 0 && row < fences.length && col - 1 >= 0 && col - 1 < fences[0].length) {
-            if (fences[row][col - 1]) count++;
+            if (fences[row][col - 1][3]) count++; // 좌측 울타리
         }
         if (row - 1 >= 0 && row - 1 < fences.length && col >= 0 && col < fences[0].length) {
-            if (fences[row - 1][col]) count++;
+            if (fences[row - 1][col][1]) count++; // 상단 울타리
         }
         if (row >= 0 && row < fences.length && col + 1 >= 0 && col + 1 < fences[0].length) {
-            if (fences[row][col + 1]) count++;
+            if (fences[row][col + 1][2]) count++; // 우측 울타리
         }
         return count;
     }
+
 
 
     private void printPlayerResources(String message) {
@@ -186,6 +194,20 @@ public class ConstructionTest {
             }
             System.out.println();
         }
+    }
+
+    // 지정한 위치의 타일 울타리 상태를 출력하는 메서드
+    public void printTileFenceInfo(int x, int y) {
+        boolean[][][] fences = player.getPlayerBoard().getFences();
+        System.out.println("Fence information for tile at (" + x + ", " + y + "):");
+        System.out.println("  Top: " + (fences[x][y][0] ? "Present" : "Absent"));
+        System.out.println("  Bottom: " + (fences[x][y][1] ? "Present" : "Absent"));
+        System.out.println("  Left: " + (fences[x][y][2] ? "Present" : "Absent"));
+        System.out.println("  Right: " + (fences[x][y][3] ? "Present" : "Absent"));
+    }
+
+    private boolean isValidTile(int x, int y) {
+        return x >= 0 && x < player.getPlayerBoard().getTiles().length && y >= 0 && y < player.getPlayerBoard().getTiles()[0].length;
     }
 
 
@@ -378,6 +400,7 @@ public class ConstructionTest {
         // 상태 출력
         validPositions = player.getPlayerBoard().getValidBarnPositions();
         printPlayerBoardWithFences("Player board after building second barn:", validPositions);
+        printPlayerResources("Player resources after building second barn:");
 
         // 검증
         Tile[][] tiles = player.getPlayerBoard().getTiles();
@@ -504,69 +527,88 @@ public class ConstructionTest {
         assertTrue(validFencePositionFound, "There should be valid fence positions around the barns.");
     }
 
+    // TODO 펜스 짓기
 //    @Test
 //    public void testBuildFence() {
-//        // 자원 설정
 //        player.resetResources();
-//        player.addResource("wood", 10);
+//        player.addResource("wood", 20);
 //
-//        // 초기 상태 출력
+//        // Initial state
 //        printPlayerResources("Resources before building fence:");
 //        Set<int[]> validPositions = player.getPlayerBoard().getValidFencePositions();
 //        printPlayerBoardWithFences("Player board before building fence:", validPositions);
 //
-//        // 울타리 짓기
-//        actionCard.buildFence(player);
+//        // Build fence
+//        List<int[]> selectedPositions = Arrays.asList(
+//                new int[]{1, 1},
+//                new int[]{1, 2},
+//                new int[]{1, 3}
+//        );
+//        player.getPlayerBoard().buildFences(selectedPositions, player);
 //
-//        // 상태 출력
+//        // State after building fence
 //        printPlayerResources("Resources after building fence:");
 //        validPositions = player.getPlayerBoard().getValidFencePositions();
 //        printPlayerBoardWithFences("Player board after building fence:", validPositions);
 //
-//        // 검증
-//        // 울타리 상태 검증 추가
+//        printTileFenceInfo(1, 1);
+//        printTileFenceInfo(1, 2);
+//        printTileFenceInfo(1, 3);
+//
+//        // Verification
 //        boolean fenceBuilt = false;
-//        for (boolean[] row : player.getPlayerBoard().getFences()) {
-//            for (boolean hasFence : row) {
-//                if (hasFence) {
-//                    fenceBuilt = true;
-//                    break;
+//        for (boolean[][] row : player.getPlayerBoard().getFences()) {
+//            for (boolean[] tile : row) {
+//                for (boolean hasFence : tile) {
+//                    if (hasFence) {
+//                        fenceBuilt = true;
+//                        break;
+//                    }
 //                }
+//                if (fenceBuilt) break;
 //            }
 //            if (fenceBuilt) break;
 //        }
 //        assertTrue(fenceBuilt, "A fence should be built at the expected position.");
 //    }
-
-    // TODO 펜스 짓기
     @Test
     public void testBuildFence() {
-        // 자원 설정
         player.resetResources();
-        player.addResource("wood", 10);
+        player.addResource("wood", 20);
 
-        // 초기 상태 출력
+        // Initial state
         printPlayerResources("Resources before building fence:");
         Set<int[]> validPositions = player.getPlayerBoard().getValidFencePositions();
         printPlayerBoardWithFences("Player board before building fence:", validPositions);
 
-        // 울타리 짓기
-        actionCard.buildFence(player);
+        // Build fence
+        List<int[]> selectedPositions = Arrays.asList(
+                new int[]{1, 1},
+                new int[]{1, 2},
+                new int[]{2, 2}
+        );
+        player.getPlayerBoard().buildFences(selectedPositions, player);
 
-        // 상태 출력
+        // State after building fence
         printPlayerResources("Resources after building fence:");
         validPositions = player.getPlayerBoard().getValidFencePositions();
         printPlayerBoardWithFences("Player board after building fence:", validPositions);
 
-        // 검증
-        // 울타리 상태 검증 추가
+        printTileFenceInfo(1, 1);
+        printTileFenceInfo(1, 2);
+        printTileFenceInfo(2, 2);
+
+        // Verification
         boolean fenceBuilt = false;
-        for (boolean[] row : player.getPlayerBoard().getFences()) {
-            for (boolean hasFence : row) {
-                if (hasFence) {
-                    fenceBuilt = true;
-                    break;
+        for (boolean[][] row : player.getPlayerBoard().getFences()) {
+            for (boolean[] tile : row) {
+                for (boolean hasFence : tile) {
+                    if (hasFence) {
+                        fenceBuilt = true;
+                        break;
+                    }
                 }
+                if (fenceBuilt) break;
             }
             if (fenceBuilt) break;
         }
@@ -574,12 +616,16 @@ public class ConstructionTest {
     }
 
 
-    // 외양간 짓고 울타리 짓기
+
+
+
+
+
     @Test
     public void testValidFencePositionsWithBarnsAndOneFence() {
         // 플레이어의 자원 설정
         player.resetResources();
-        player.addResource("wood", 6); // 외양간을 짓기 위한 나무 자원 추가 및 울타리를 위한 추가 자원
+        player.addResource("wood", 12); // 외양간을 짓기 위한 나무 자원 추가 및 울타리를 위한 추가 자원
 
         // 초기 상태 출력
         printPlayerResources("Resources before building barns:");
@@ -587,8 +633,8 @@ public class ConstructionTest {
         printPlayerBoardWithFences("Player board before building barns:", validPositions);
 
         // 외양간 2개 짓기
-        actionCard.buildBarn(player);
-        actionCard.buildBarn(player);
+        player.getPlayerBoard().buildBarn(1, 1);
+        player.getPlayerBoard().buildBarn(1, 2);
 
         // 외양간을 지은 후 상태 출력
         printPlayerResources("Resources after building barns:");
@@ -599,19 +645,28 @@ public class ConstructionTest {
         validPositions = player.getPlayerBoard().getValidFencePositions();
         printPlayerBoardWithFences("Player board with valid fence positions:", validPositions);
 
-        // 첫 번째 울타리 짓기
-        List<int[]> fencePositions = new ArrayList<>();
-        int[] firstFencePosition = validPositions.iterator().next(); // 첫 번째 유효 위치 선택
-        fencePositions.add(firstFencePosition);
-        player.getPlayerBoard().buildFences(fencePositions);
+        // 울타리 위치 설정
+        List<int[]> fencePositions = Arrays.asList(
+                new int[]{1, 1},
+                new int[]{1, 2},
+                new int[]{1, 3}
+        );
+        player.getPlayerBoard().buildFences(fencePositions, player);
 
-        // 첫 번째 울타리를 지은 후 상태 출력
-        printPlayerResources("Resources after building first fence:");
+        // 울타리를 지은 후 상태 출력
+        printPlayerResources("Resources after building fences:");
         validPositions = player.getPlayerBoard().getValidFencePositions();
-        printPlayerBoardWithFences("Player board after building first fence:", validPositions);
+        printPlayerBoardWithFences("Player board after building fences:", validPositions);
+
+        printTileFenceInfo(1, 1);
+        printTileFenceInfo(1, 2);
+        printTileFenceInfo(1, 3);
+        printTileFenceInfo(0, 1);
+        printTileFenceInfo(2, 1);
+        printTileFenceInfo(1, 0);
+        printTileFenceInfo(1, 4);
 
         // 검증
-        // 울타리 유효 위치 검증 추가
         boolean validFencePositionFound = false;
         for (int[] pos : validPositions) {
             if (player.getPlayerBoard().getTiles()[pos[0]][pos[1]] == null || player.getPlayerBoard().getTiles()[pos[0]][pos[1]] instanceof Barn) {
@@ -621,6 +676,74 @@ public class ConstructionTest {
         }
         assertTrue(validFencePositionFound, "There should be valid fence positions around the barns and the first fence.");
     }
+
+    // TODO 수용능력 계산
+    @Test
+    public void testBuildTwoFences() {
+        // 플레이어의 자원 설정
+        player.resetResources();
+        player.addResource("wood", 16); // 울타리를 짓기 위한 나무 자원 추가
+
+        // 초기 상태 출력
+        printPlayerResources("Resources before building fences:");
+        Set<int[]> validPositions = player.getPlayerBoard().getValidFencePositions();
+        printPlayerBoardWithFences("Player board before building fences:", validPositions);
+
+        // 첫 번째 울타리 위치 설정 및 건설
+        List<int[]> firstFencePositions = Arrays.asList(
+                new int[]{1, 2},
+                new int[]{1, 3}
+        );
+        player.getPlayerBoard().buildFences(firstFencePositions, player);
+
+        // 첫 번째 울타리를 지은 후 상태 출력
+        printPlayerResources("Resources after building first fence:");
+        validPositions = player.getPlayerBoard().getValidFencePositions();
+        printPlayerBoardWithFences("Player board after building first fence:", validPositions);
+
+        // 두 번째 울타리 위치 설정 및 건설
+        List<int[]> secondFencePositions = Arrays.asList(
+                new int[]{2, 2},
+                new int[]{2, 3}
+        );
+        player.getPlayerBoard().buildFences(secondFencePositions, player);
+
+        // 두 번째 울타리를 지은 후 상태 출력
+        printPlayerResources("Resources after building second fence:");
+        validPositions = player.getPlayerBoard().getValidFencePositions();
+        printPlayerBoardWithFences("Player board after building second fence:", validPositions);
+
+        // 첫 번째 울타리 타일 정보 출력
+        printTileFenceInfo(1, 2);
+        printTileFenceInfo(1, 3);
+        // 두 번째 울타리 타일 정보 출력
+        printTileFenceInfo(2, 2);
+        printTileFenceInfo(2, 3);
+        // 인접한 타일 정보 출력
+        if (isValidTile(0, 2)) printTileFenceInfo(0, 2);
+        if (isValidTile(1, 1)) printTileFenceInfo(1, 1);
+        if (isValidTile(1, 4)) printTileFenceInfo(1, 4);
+        if (isValidTile(2, 1)) printTileFenceInfo(2, 1);
+        if (isValidTile(2, 4)) printTileFenceInfo(2, 4);
+
+        // 검증
+        boolean validFencePositionFound = false;
+        for (int[] pos : validPositions) {
+            if (player.getPlayerBoard().getTiles()[pos[0]][pos[1]] == null || player.getPlayerBoard().getTiles()[pos[0]][pos[1]] instanceof Barn) {
+                validFencePositionFound = true;
+                break;
+            }
+        }
+        assertTrue(validFencePositionFound, "There should be valid fence positions around the barns and the fences.");
+
+        // 각 펜스 영역의 수용 능력 계산 및 출력
+        List<FenceArea> fenceAreas = player.getPlayerBoard().getFenceAreas();
+        for (int i = 0; i < fenceAreas.size(); i++) {
+            int capacity = fenceAreas.get(i).calculateCapacity();
+            System.out.println("Fence Area " + (i + 1) + " Capacity: " + capacity);
+        }
+    }
+
 }
 
 
