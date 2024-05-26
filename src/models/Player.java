@@ -329,13 +329,16 @@ public class Player {
     }
 
     // 가족 구성원 추가 메서드
-    public void addFamilyMember() {
-        if (playerBoard.hasEmptyRoom()) {
+    public boolean addFamilyMember() {
+        List<int[]> emptyRooms = playerBoard.getEmptyRoomPositions();
+        if (!emptyRooms.isEmpty()) {
             FamilyMember newMember = new FamilyMember(-1, -1, false); // 보드 외부에 위치한 신생아
             newFamilyMembers.add(newMember);
             System.out.println("새로운 가족 구성원이 추가되었습니다. 빈 방에 배치하세요.");
+            return true;
         } else {
             System.out.println("빈 방이 없습니다.");
+            return false;
         }
     }
 
@@ -344,11 +347,11 @@ public class Player {
         if (playerBoard.isEmptyRoom(x, y)) {
             playerBoard.addFamilyMemberToBoard(familyMember, x, y);
             newFamilyMembers.remove(familyMember);
+            System.out.println("가족 구성원이 방에 배치되었습니다: (" + x + ", " + y + ")");
         } else {
             System.out.println("해당 방은 이미 사용 중입니다.");
         }
     }
-
 
     // 새로 추가된 가족 구성원 중 하나를 반환하는 메서드
     public FamilyMember getNewFamilyMember() {
@@ -360,7 +363,6 @@ public class Player {
 
     // 동물 추가 메서드
     public boolean addAnimal(Animal animal) {
-//        Animal newAnimal = new Animal(-1, -1, type); // 보드 외부에 위치한 동물
         newAnimals.add(animal);
         System.out.println(animal.getType() + " 새끼 동물이 추가되었습니다. 울타리나 방에 배치하세요.");
 

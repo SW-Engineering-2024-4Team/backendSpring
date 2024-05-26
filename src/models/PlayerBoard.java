@@ -27,7 +27,9 @@ public class PlayerBoard {
         tiles[1][0] = new Room(RoomType.WOOD, 1, 0);
         tiles[2][0] = new Room(RoomType.WOOD, 2, 0);
         familyMembers[1][0] = new FamilyMember(1, 0, true);
+        ((Room) tiles[1][0]).setFamilyMember(familyMembers[1][0]);
         familyMembers[2][0] = new FamilyMember(2, 0, true);
+        ((Room) tiles[2][0]).setFamilyMember(familyMembers[2][0]);
     }
 
     public boolean canBuildHouse(int x, int y, RoomType type, Map<String, Integer> resources) {
@@ -633,9 +635,10 @@ public Set<int[]> getValidFencePositions() {
 
 
 
+    // TODO 집, 외양간 추가 필요
     public int getAnimalCapacity() {
         int totalCapacity = 0;
-        for (FenceArea area : fenceAreas) {
+        for (FenceArea area : managedFenceAreas) {
             totalCapacity += area.calculateCapacity();
         }
         return totalCapacity;
@@ -715,11 +718,6 @@ public Set<int[]> getValidFencePositions() {
         return false;
     }
 
-    // 방이 비어 있는지 확인하는 메서드
-    public boolean isEmptyRoom(int x, int y) {
-        return tiles[x][y] instanceof Room && !((Room) tiles[x][y]).hasFamilyMember();
-    }
-
     // 빈 방의 위치를 반환하는 메서드
     public List<int[]> getEmptyRoomPositions() {
         List<int[]> emptyRooms = new ArrayList<>();
@@ -733,10 +731,16 @@ public Set<int[]> getValidFencePositions() {
         return emptyRooms;
     }
 
+    // 방이 비어 있는지 확인하는 메서드
+    public boolean isEmptyRoom(int x, int y) {
+        return tiles[x][y] instanceof Room && !((Room) tiles[x][y]).hasFamilyMember();
+    }
+
     // 보드에 가족 구성원을 추가하는 메서드
     public void addFamilyMemberToBoard(FamilyMember familyMember, int x, int y) {
         if (isEmptyRoom(x, y)) {
             ((Room) tiles[x][y]).setFamilyMember(familyMember);
+            familyMembers[x][y] = familyMember;
             familyMember.setX(x);
             familyMember.setY(y);
         }
@@ -804,7 +808,7 @@ public Set<int[]> getValidFencePositions() {
 
     // 해당 위치가 울타리 영역인지 확인하는 메서드
     public boolean isFenceArea(int x, int y) {
-        for (FenceArea area : fenceAreas) {
+        for (FenceArea area : managedFenceAreas) {
             if (area.containsTile(x, y)) {
                 return true;
             }

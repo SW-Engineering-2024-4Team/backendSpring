@@ -39,36 +39,6 @@ public class ConstructionTest {
         return players;
     }
 
-    //    private void printPlayerBoard(String message, Set<int[]> validPositions) {
-//        System.out.println(message);
-//        Tile[][] tiles = player.getPlayerBoard().getTiles();
-//        for (int i = 0; i < tiles.length; i++) {
-//            for (int j = 0; j < tiles[i].length; j++) {
-//                boolean isValidPosition = false;
-//                for (int[] pos : validPositions) {
-//                    if (pos[0] == i && pos[1] == j) {
-//                        isValidPosition = true;
-//                        break;
-//                    }
-//                }
-//                if (tiles[i][j] == null) {
-//                    if (isValidPosition) {
-//                        System.out.print("[*]");
-//                    } else {
-//                        System.out.print("[ ]");
-//                    }
-//                } else if (tiles[i][j] instanceof Room) {
-//                    System.out.print("[R]");
-//                } else if (tiles[i][j] instanceof Barn) {
-//                    System.out.print("[B]");
-//                } else if (tiles[i][j] instanceof FieldTile) {
-//                    System.out.print("[F]");
-//                }
-//            }
-//            System.out.println();
-//        }
-//    }
-    // 타일과 울타리를 시각화하는 메서드
     public void printPlayerBoardWithFences(String message, Set<int[]> validPositions) {
         System.out.println(message);
         Tile[][] tiles = player.getPlayerBoard().getTiles();
@@ -527,50 +497,6 @@ public class ConstructionTest {
         assertTrue(validFencePositionFound, "There should be valid fence positions around the barns.");
     }
 
-    // TODO 펜스 짓기
-//    @Test
-//    public void testBuildFence() {
-//        player.resetResources();
-//        player.addResource("wood", 20);
-//
-//        // Initial state
-//        printPlayerResources("Resources before building fence:");
-//        Set<int[]> validPositions = player.getPlayerBoard().getValidFencePositions();
-//        printPlayerBoardWithFences("Player board before building fence:", validPositions);
-//
-//        // Build fence
-//        List<int[]> selectedPositions = Arrays.asList(
-//                new int[]{1, 1},
-//                new int[]{1, 2},
-//                new int[]{1, 3}
-//        );
-//        player.getPlayerBoard().buildFences(selectedPositions, player);
-//
-//        // State after building fence
-//        printPlayerResources("Resources after building fence:");
-//        validPositions = player.getPlayerBoard().getValidFencePositions();
-//        printPlayerBoardWithFences("Player board after building fence:", validPositions);
-//
-//        printTileFenceInfo(1, 1);
-//        printTileFenceInfo(1, 2);
-//        printTileFenceInfo(1, 3);
-//
-//        // Verification
-//        boolean fenceBuilt = false;
-//        for (boolean[][] row : player.getPlayerBoard().getFences()) {
-//            for (boolean[] tile : row) {
-//                for (boolean hasFence : tile) {
-//                    if (hasFence) {
-//                        fenceBuilt = true;
-//                        break;
-//                    }
-//                }
-//                if (fenceBuilt) break;
-//            }
-//            if (fenceBuilt) break;
-//        }
-//        assertTrue(fenceBuilt, "A fence should be built at the expected position.");
-//    }
     @Test
     public void testBuildFence() {
         player.resetResources();
