@@ -13,6 +13,10 @@ public class PlayerBoard {
     private List<FenceArea> fenceAreas;
     private Set<FenceArea> managedFenceAreas; // 추가된 컬렉션
 
+    public Set<FenceArea> getManagedFenceAreas() {
+        return managedFenceAreas;
+    }
+
     public PlayerBoard() {
         this.tiles = new Tile[3][5];
         this.fences = new boolean[3][5][4];
@@ -101,34 +105,59 @@ public class PlayerBoard {
     }
 
     public boolean canBuildBarn(int x, int y) {
-        if (tiles[x][y] != null) {
-            return false; // 타일이 비어있지 않으면 외양간을 지을 수 없음
+        // 타일이 비어 있거나 이미 울타리 영역 안에 있는 경우에만 외양간을 지을 수 있음
+        if (tiles[x][y] == null || isPartOfFence(x, y)) {
+            return true;
         }
-        return true;
+        return false;
     }
 
-//    public void buildBarn(int x, int y) {
-//        if (tiles[x][y] == null) {
-//            tiles[x][y] = new Barn(x, y);
+
+    public void buildBarn(int x, int y) {
+        if (canBuildBarn(x, y)) {
+            tiles[x][y] = new Barn(x, y);
+            if (isPartOfFence(x, y)) {
+                addBarnToFenceArea(x, y);
+            }
+            updateFenceAreas(); // 울타리 영역 업데이트
+        } else {
+            System.out.println("Cannot build barn at the specified location.");
+        }
+
+    }
+
+//    private void addBarnToFenceArea(int x, int y) {
+//        for (FenceArea area : fenceAreas) {
+//            if (area.containsTile(x, y)) {
+//                if (!area.containsBarn(x, y)) {
+//                    area.addTile(x, y, tiles[x][y]);
+//                }
+//                break; // 외양간이 있는 타일을 찾으면 반복문 종료
+//            }
 //        }
 //    }
-    public void buildBarn(int x, int y) {
-        if (tiles[x][y] == null) {
-            tiles[x][y] = new Barn(x, y);
-            updateFenceAreas(); // 울타리 영역 업데이트
-        } else if (isFenceArea(x, y)) {
-            tiles[x][y] = new Barn(x, y);
-            addBarnToFenceArea(x, y);
-        }
-    }
+//private void addBarnToFenceArea(int x, int y) {
+//    for (FenceArea area : fenceAreas) {
+//        if (area.containsTile(x, y)) {
+//            area.addTile(x, y, tiles[x][y]);
+//            break; // 울타리 영역이 여러 개일 경우, 첫 번째 해당 영역에만 추가하고 종료
+//        }
+//    }
+//}
 
     private void addBarnToFenceArea(int x, int y) {
         for (FenceArea area : fenceAreas) {
             if (area.containsTile(x, y)) {
-                area.addTile(x, y, tiles[x][y]);
+                area.addBarn((Barn) tiles[x][y]);
+                return;
             }
         }
+        // 해당 타일이 포함된 울타리 영역이 없으면 새로 생성
+        FenceArea newArea = new FenceArea();
+        newArea.addTile(x, y, tiles[x][y]);
+        fenceAreas.add(newArea);
     }
+
 
     // 유효한 밭 위치를 반환하는 메서드
     public Set<int[]> getValidPlowPositions() {
@@ -200,47 +229,6 @@ public class PlayerBoard {
         }
         return false;
     }
-//    public void buildFences(List<int[]> coordinates, Player player) {
-//        if (coordinates == null || coordinates.isEmpty()) {
-//            System.out.println("No coordinates provided.");
-//            return;
-//        }
-//
-//        int woodRequired = calculateRequiredWoodForFences(coordinates);
-//        if (player.getResource("wood") < woodRequired) {
-//            System.out.println("Not enough wood to build fences.");
-//            return;
-//        }
-//
-//        if (!validateCoordinates(coordinates)) {
-//            System.out.println("Invalid coordinates provided.");
-//            return;
-//        }
-//
-//        // 울타리 건설
-//        for (int[] coord : coordinates) {
-//            int x = coord[0];
-//            int y = coord[1];
-//
-//            // 각 좌표에 대한 상하좌우 울타리를 업데이트
-//            updateFence(x, y, coordinates);
-//        }
-//
-//        // 인접한 타일들 업데이트
-//        for (int[] coord : coordinates) {
-//            int x = coord[0];
-//            int y = coord[1];
-//
-//            // 인접한 타일의 울타리 정보 업데이트
-//            updateAdjacentFences(x, y, coordinates);
-//        }
-//
-//        // 자원 차감
-//        player.addResource("wood", -woodRequired);
-//
-//        // 울타리 영역 업데이트
-//        updateFenceAreas();
-//    }
 
     public void buildFences(List<int[]> coordinates, Player player) {
         if (coordinates == null || coordinates.isEmpty()) {
@@ -406,28 +394,60 @@ public class PlayerBoard {
         return uniqueFences.size();
     }
 
-
-//
-//    // 울타리 영역을 업데이트하는 메서드
 //    private void updateFenceAreas() {
 //        fenceAreas.clear();
-//        boolean[][] visited = new boolean[fences.length][fences[0].length];
-//        for (int i = 0; i < fences.length; i++) {
-//            for (int j = 0; j < fences[i].length; j++) {
-//                for (int k = 0; k < 4; k++) {
-//                    if (fences[i][j][k] && !visited[i][j]) {
-//                        FenceArea area = new FenceArea();
-//                        exploreFenceArea(i, j, k, visited, area);
-//                        fenceAreas.add(area);
-//                    }
+//        boolean[][] visited = new boolean[tiles.length][tiles[0].length];
+//        for (int i = 0; i < tiles.length; i++) {
+//            for (int j = 0; j < tiles[0].length; j++) {
+//                if (!visited[i][j] && isFenceArea(i, j)) {
+//                    FenceArea area = new FenceArea();
+//                    exploreFenceArea(i, j, visited, area);
+//                    fenceAreas.add(area);
+//                    managedFenceAreas.add(area); // 새로운 컬렉션에 추가
 //                }
 //            }
 //        }
 //    }
-//
-//    private void exploreFenceArea(int x, int y, int direction, boolean[][] visited, FenceArea area) {
+
+//    private void updateFenceAreas() {
+//        fenceAreas.clear();
+//        boolean[][] visited = new boolean[tiles.length][tiles[0].length];
+//        for (int i = 0; i < tiles.length; i++) {
+//            for (int j = 0; j < tiles[0].length; j++) {
+//                if (!visited[i][j] && isPartOfFence(i, j)) {
+//                    FenceArea area = new FenceArea();
+//                    exploreFenceArea(i, j, visited, area);
+//                    fenceAreas.add(area);
+//                }
+//            }
+//        }
+//    }
+private void updateFenceAreas() {
+    fenceAreas.clear();
+    boolean[][] visited = new boolean[tiles.length][tiles[0].length];
+    for (int i = 0; i < tiles.length; i++) {
+        for (int j = 0; j < tiles[0].length; j++) {
+            if (!visited[i][j] && isPartOfFence(i, j)) {
+                FenceArea area = new FenceArea();
+                exploreFenceArea(i, j, visited, area);
+                fenceAreas.add(area);
+            }
+        }
+    }
+}
+
+    private boolean isPartOfFence(int x, int y) {
+        for (int i = 0; i < 4; i++) {
+            if (fences[x][y][i]) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+//    private void exploreFenceArea(int x, int y, boolean[][] visited, FenceArea area) {
 //        Queue<int[]> queue = new LinkedList<>();
-//        queue.add(new int[]{x, y, direction});
+//        queue.add(new int[]{x, y});
 //        visited[x][y] = true;
 //        while (!queue.isEmpty()) {
 //            int[] pos = queue.poll();
@@ -438,55 +458,54 @@ public class PlayerBoard {
 //            for (int[] dir : directions) {
 //                int nx = px + dir[0];
 //                int ny = py + dir[1];
-//                if (nx >= 0 && ny >= 0 && nx < tiles.length && ny < tiles[0].length && !visited[nx][ny]) {
-//                    if ((dir[0] == -1 && fences[px - 1][py][0]) ||
-//                            (dir[0] == 1 && fences[px + 1][py][0]) ||
-//                            (dir[1] == -1 && fences[px][py - 1][2]) ||
-//                            (dir[1] == 1 && fences[px][py + 1][2])) {
-//                        queue.add(new int[]{nx, ny});
-//                        visited[nx][ny] = true;
-//                    }
+//                if (nx >= 0 && ny >= 0 && nx < tiles.length && ny < tiles[0].length && !visited[nx][ny] && isFenceArea(nx, ny)) {
+//                    queue.add(new int[]{nx, ny});
+//                    visited[nx][ny] = true;
 //                }
 //            }
 //        }
 //    }
 
-    private void updateFenceAreas() {
-        fenceAreas.clear();
-        boolean[][] visited = new boolean[tiles.length][tiles[0].length];
-        for (int i = 0; i < tiles.length; i++) {
-            for (int j = 0; j < tiles[0].length; j++) {
-                if (!visited[i][j] && isFenceArea(i, j)) {
-                    FenceArea area = new FenceArea();
-                    exploreFenceArea(i, j, visited, area);
-                    fenceAreas.add(area);
-                    managedFenceAreas.add(area); // 새로운 컬렉션에 추가
-                }
+//    private void exploreFenceArea(int x, int y, boolean[][] visited, FenceArea area) {
+//        Queue<int[]> queue = new LinkedList<>();
+//        queue.add(new int[]{x, y});
+//        visited[x][y] = true;
+//        while (!queue.isEmpty()) {
+//            int[] pos = queue.poll();
+//            int px = pos[0];
+//            int py = pos[1];
+//            area.addTile(px, py, tiles[px][py]);
+//            int[][] directions = {{-1, 0}, {1, 0}, {0, -1}, {0, 1}};
+//            for (int[] dir : directions) {
+//                int nx = px + dir[0];
+//                int ny = py + dir[1];
+//                if (nx >= 0 && ny >= 0 && nx < tiles.length && ny < tiles[0].length && !visited[nx][ny] && isPartOfFence(nx, ny)) {
+//                    queue.add(new int[]{nx, ny});
+//                    visited[nx][ny] = true;
+//                }
+//            }
+//        }
+//    }
+private void exploreFenceArea(int x, int y, boolean[][] visited, FenceArea area) {
+    Queue<int[]> queue = new LinkedList<>();
+    queue.add(new int[]{x, y});
+    visited[x][y] = true;
+    while (!queue.isEmpty()) {
+        int[] pos = queue.poll();
+        int px = pos[0];
+        int py = pos[1];
+        area.addTile(px, py, tiles[px][py]);
+        int[][] directions = {{-1, 0}, {1, 0}, {0, -1}, {0, 1}};
+        for (int[] dir : directions) {
+            int nx = px + dir[0];
+            int ny = py + dir[1];
+            if (nx >= 0 && ny >= 0 && nx < tiles.length && ny < tiles[0].length && !visited[nx][ny] && isPartOfFence(nx, ny)) {
+                queue.add(new int[]{nx, ny});
+                visited[nx][ny] = true;
             }
         }
     }
-
-    private void exploreFenceArea(int x, int y, boolean[][] visited, FenceArea area) {
-        Queue<int[]> queue = new LinkedList<>();
-        queue.add(new int[]{x, y});
-        visited[x][y] = true;
-        while (!queue.isEmpty()) {
-            int[] pos = queue.poll();
-            int px = pos[0];
-            int py = pos[1];
-            area.addTile(px, py, tiles[px][py]);
-            int[][] directions = {{-1, 0}, {1, 0}, {0, -1}, {0, 1}};
-            for (int[] dir : directions) {
-                int nx = px + dir[0];
-                int ny = py + dir[1];
-                if (nx >= 0 && ny >= 0 && nx < tiles.length && ny < tiles[0].length && !visited[nx][ny] && isFenceArea(nx, ny)) {
-                    queue.add(new int[]{nx, ny});
-                    visited[nx][ny] = true;
-                }
-            }
-        }
-    }
-
+}
 
 
 
@@ -523,39 +542,86 @@ public class PlayerBoard {
 //        }
 //        return validPositions;
 //    }
-public Set<int[]> getValidFencePositions() {
-    Set<int[]> validPositions = new HashSet<>();
-    if (noFencesBuilt()) {
-        // 처음 울타리를 지을 때: 빈 타일 또는 외양간이 있는 타일이 유효한 위치
-        for (int i = 0; i < tiles.length; i++) {
-            for (int j = 0; j < tiles[0].length; j++) {
-                if (tiles[i][j] == null || tiles[i][j] instanceof Barn) {
-                    validPositions.add(new int[]{i, j});
-                }
-            }
-        }
-    } else {
-        // 이후 울타리를 지을 때: 기존 울타리와 인접한 빈 타일 또는 외양간이 있는 타일이 유효한 위치
-        boolean[][] visited = new boolean[tiles.length][tiles[0].length];
-        for (int i = 0; i < tiles.length; i++) {
-            for (int j = 0; j < tiles[0].length; j++) {
-                if ((tiles[i][j] == null || tiles[i][j] instanceof Barn) && !visited[i][j]) {
-                    if (isAdjacentToFence(i, j) && !isEnclosedByFences(i, j, visited)) {
+//    public Set<int[]> getValidFencePositions() {
+//        Set<int[]> validPositions = new HashSet<>();
+//        if (noFencesBuilt()) {
+//            // 처음 울타리를 지을 때: 빈 타일 또는 외양간이 있는 타일이 유효한 위치
+//            for (int i = 0; i < tiles.length; i++) {
+//                for (int j = 0; j < tiles[0].length; j++) {
+//                    if (tiles[i][j] == null || tiles[i][j] instanceof Barn) {
+//                        validPositions.add(new int[]{i, j});
+//                    }
+//                }
+//            }
+//        } else {
+//            // 이후 울타리를 지을 때: 기존 울타리와 인접한 빈 타일 또는 외양간이 있는 타일이 유효한 위치
+//            boolean[][] visited = new boolean[tiles.length][tiles[0].length];
+//            for (int i = 0; i < tiles.length; i++) {
+//                for (int j = 0; j < tiles[0].length; j++) {
+//                    if ((tiles[i][j] == null || tiles[i][j] instanceof Barn) && !visited[i][j]) {
+//                        if (isAdjacentToFence(i, j) && !isEnclosedByFences(i, j, visited)) {
+//                            validPositions.add(new int[]{i, j});
+//                        }
+//                    }
+//                    visited[i][j] = true;
+//                }
+//            }
+//        }
+//        return validPositions;
+//    }
+    public Set<int[]> getValidFencePositions() {
+        Set<int[]> validPositions = new HashSet<>();
+        if (noFencesBuilt()) {
+            // 처음 울타리를 지을 때: 빈 타일 또는 외양간이 있는 타일이 유효한 위치
+            for (int i = 0; i < tiles.length; i++) {
+                for (int j = 0; j < tiles[0].length; j++) {
+                    if (tiles[i][j] == null || tiles[i][j] instanceof Barn) {
                         validPositions.add(new int[]{i, j});
                     }
                 }
-                visited[i][j] = true;
+            }
+        } else {
+            // 이후 울타리를 지을 때: 기존 울타리와 인접한 빈 타일 또는 외양간이 있는 타일이 유효한 위치
+            boolean[][] visited = new boolean[tiles.length][tiles[0].length];
+            for (int i = 0; i < tiles.length; i++) {
+                for (int j = 0; j < tiles[0].length; j++) {
+                    if ((tiles[i][j] == null || tiles[i][j] instanceof Barn) && !visited[i][j]) {
+                        if (isAdjacentToFence(i, j)) {
+                            validPositions.add(new int[]{i, j});
+                        }
+                    }
+                    visited[i][j] = true;
+                }
+            }
+
+            // 유효한 위치에서 울타리 내부의 타일들을 제외
+            Iterator<int[]> iterator = validPositions.iterator();
+            while (iterator.hasNext()) {
+                int[] pos = iterator.next();
+                if (isInsideFenceArea(pos[0], pos[1])) {
+                    iterator.remove();
+                }
             }
         }
+        return validPositions;
     }
-    return validPositions;
-}
+
+
+
+//    private boolean isAdjacentToFence(int x, int y) {
+//        if (x > 0 && fences[x - 1][y][1]) return true; // 상단 인접 타일의 하단 울타리
+//        if (x < tiles.length - 1 && fences[x + 1][y][0]) return true; // 하단 인접 타일의 상단 울타리
+//        if (y > 0 && fences[x][y - 1][3]) return true; // 좌측 인접 타일의 우측 울타리
+//        if (y < tiles[0].length - 1 && fences[x][y + 1][2]) return true; // 우측 인접 타일의 좌측 울타리
+//        return false;
+//    }
 
     private boolean isAdjacentToFence(int x, int y) {
         if (x > 0 && fences[x - 1][y][1]) return true; // 상단 인접 타일의 하단 울타리
         if (x < tiles.length - 1 && fences[x + 1][y][0]) return true; // 하단 인접 타일의 상단 울타리
         if (y > 0 && fences[x][y - 1][3]) return true; // 좌측 인접 타일의 우측 울타리
         if (y < tiles[0].length - 1 && fences[x][y + 1][2]) return true; // 우측 인접 타일의 좌측 울타리
+        if (fences[x][y][0] || fences[x][y][1] || fences[x][y][2] || fences[x][y][3]) return true; // 현재 타일의 울타리
         return false;
     }
 
@@ -573,65 +639,101 @@ public Set<int[]> getValidFencePositions() {
         return true;
     }
 
+    private boolean isInsideFenceArea(int x, int y) {
+        for (FenceArea area : managedFenceAreas) {
+            for (int[] tile : area.getTiles()) {
+                if (tile[0] == x && tile[1] == y) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+//    private boolean isEnclosedByFences(int x, int y, boolean[][] visited) {
+//        if (visited[x][y]) {
+//            return false;
+//        }
+//
+//        visited[x][y] = true;
+//        boolean isEnclosed = true;
+//
+//        // 위쪽
+//        if (x > 0) {
+//            if (!fences[x - 1][y][1]) {
+//                isEnclosed = false;
+//            } else if (!visited[x - 1][y]) {
+//                isEnclosed = isEnclosed && isEnclosedByFences(x - 1, y, visited);
+//            }
+//        }
+//        // 아래쪽
+//        if (x < tiles.length - 1) {
+//            if (!fences[x + 1][y][0]) {
+//                isEnclosed = false;
+//            } else if (!visited[x + 1][y]) {
+//                isEnclosed = isEnclosed && isEnclosedByFences(x + 1, y, visited);
+//            }
+//        }
+//        // 왼쪽
+//        if (y > 0) {
+//            if (!fences[x][y - 1][3]) {
+//                isEnclosed = false;
+//            } else if (!visited[x][y - 1]) {
+//                isEnclosed = isEnclosed && isEnclosedByFences(x, y - 1, visited);
+//            }
+//        }
+//        // 오른쪽
+//        if (y < tiles[0].length - 1) {
+//            if (!fences[x][y + 1][2]) {
+//                isEnclosed = false;
+//            } else if (!visited[x][y + 1]) {
+//                isEnclosed = isEnclosed && isEnclosedByFences(x, y + 1, visited);
+//            }
+//        }
+//
+//        return isEnclosed;
+//    }
+
     private boolean isEnclosedByFences(int x, int y, boolean[][] visited) {
         if (visited[x][y]) {
-            return false;
+            return true;
         }
 
         visited[x][y] = true;
-        boolean isEnclosed = true;
 
-        // 위쪽
-        if (x > 0) {
-            if (!fences[x - 1][y][1]) {
-                isEnclosed = false;
-            } else if (!visited[x - 1][y]) {
-                isEnclosed = isEnclosed && isEnclosedByFences(x - 1, y, visited);
-            }
-        }
-        // 아래쪽
-        if (x < tiles.length - 1) {
-            if (!fences[x + 1][y][0]) {
-                isEnclosed = false;
-            } else if (!visited[x + 1][y]) {
-                isEnclosed = isEnclosed && isEnclosedByFences(x + 1, y, visited);
-            }
-        }
-        // 왼쪽
-        if (y > 0) {
-            if (!fences[x][y - 1][3]) {
-                isEnclosed = false;
-            } else if (!visited[x][y - 1]) {
-                isEnclosed = isEnclosed && isEnclosedByFences(x, y - 1, visited);
-            }
-        }
-        // 오른쪽
-        if (y < tiles[0].length - 1) {
-            if (!fences[x][y + 1][2]) {
-                isEnclosed = false;
-            } else if (!visited[x][y + 1]) {
-                isEnclosed = isEnclosed && isEnclosedByFences(x, y + 1, visited);
-            }
+        // 울타리 내부인지 확인
+        boolean enclosed = true;
+
+        // 상단
+        if (x > 0 && !fences[x - 1][y][1]) {
+            enclosed = false;
+        } else if (x > 0 && !visited[x - 1][y]) {
+            enclosed = enclosed && isEnclosedByFences(x - 1, y, visited);
         }
 
-        return isEnclosed;
+        // 하단
+        if (x < tiles.length - 1 && !fences[x + 1][y][0]) {
+            enclosed = false;
+        } else if (x < tiles.length - 1 && !visited[x + 1][y]) {
+            enclosed = enclosed && isEnclosedByFences(x + 1, y, visited);
+        }
+
+        // 좌측
+        if (y > 0 && !fences[x][y - 1][3]) {
+            enclosed = false;
+        } else if (y > 0 && !visited[x][y - 1]) {
+            enclosed = enclosed && isEnclosedByFences(x, y - 1, visited);
+        }
+
+        // 우측
+        if (y < tiles[0].length - 1 && !fences[x][y + 1][2]) {
+            enclosed = false;
+        } else if (y < tiles[0].length - 1 && !visited[x][y + 1]) {
+            enclosed = enclosed && isEnclosedByFences(x, y + 1, visited);
+        }
+
+        return enclosed;
     }
-
-
-//    private void addAdjacentPositions(Set<int[]> positions, int x, int y) {
-//        if (x > 0 && !hasFence(x - 1, y) && (tiles[x - 1][y] == null || tiles[x - 1][y] instanceof Barn)) {
-//            positions.add(new int[]{x - 1, y});
-//        }
-//        if (x < tiles.length - 1 && !hasFence(x + 1, y) && (tiles[x + 1][y] == null || tiles[x + 1][y] instanceof Barn)) {
-//            positions.add(new int[]{x + 1, y});
-//        }
-//        if (y > 0 && !hasFence(x, y - 1) && (tiles[x][y - 1] == null || tiles[x][y - 1] instanceof Barn)) {
-//            positions.add(new int[]{x, y - 1});
-//        }
-//        if (y < tiles[0].length - 1 && !hasFence(x, y + 1) && (tiles[x][y + 1] == null || tiles[x][y + 1] instanceof Barn)) {
-//            positions.add(new int[]{x, y + 1});
-//        }
-//    }
 
 
 
@@ -639,7 +741,7 @@ public Set<int[]> getValidFencePositions() {
     public int getAnimalCapacity() {
         int totalCapacity = 0;
         for (FenceArea area : managedFenceAreas) {
-            totalCapacity += area.calculateCapacity();
+            totalCapacity += area.getRemainingCapacity();
         }
         return totalCapacity;
     }
@@ -746,28 +848,53 @@ public Set<int[]> getValidFencePositions() {
         }
     }
 
-    // 특정 위치에 동물을 배치할 수 있는지 확인하는 메서드
-    public boolean canPlaceAnimal(int x, int y, String animalType) {
-        if (tiles[x][y] instanceof Room) {
-            Room room = (Room) tiles[x][y];
-            return !room.hasAnimal() || room.getAnimal().getType().equals(animalType);
-        } else if (tiles[x][y] instanceof Barn) {
-            Barn barn = (Barn) tiles[x][y];
-            if (isFenceArea(x, y)) {
-                int capacity = calculateFenceCapacity();
-                int animalCount = countAnimalsInsideFences(animalType);
-                return animalCount < capacity;
-            } else {
-                return !barn.hasAnimal() || barn.getAnimal().getType().equals(animalType);
-            }
-        } else if (isFenceArea(x, y)) {
-            int capacity = calculateFenceCapacity();
-            int animalCount = countAnimalsInsideFences(animalType);
-            return animalCount < capacity;
+//    // 특정 위치에 동물을 배치할 수 있는지 확인하는 메서드
+//    public boolean canPlaceAnimal(int x, int y, String animalType) {
+//        if (tiles[x][y] instanceof Room) {
+//            Room room = (Room) tiles[x][y];
+//            return !room.hasAnimal() || room.getAnimal().getType().equals(animalType);
+//        } else if (tiles[x][y] instanceof Barn) {
+//            Barn barn = (Barn) tiles[x][y];
+//            if (isFenceArea(x, y)) {
+//                FenceArea area = getFenceArea(x, y);
+//                int capacity = area.getRemainingCapacity();
+//                int animalCount = area.countAnimalsByType(animalType);
+//                return area.isSingleAnimalType(animalType) && animalCount < capacity;
+//            } else {
+//                return !barn.hasAnimal() || barn.getAnimal().getType().equals(animalType);
+//            }
+//        } else if (isFenceArea(x, y)) {
+//            FenceArea area = getFenceArea(x, y);
+//            int capacity = area.getRemainingCapacity();
+//            int animalCount = area.countAnimalsByType(animalType);
+//            return area.isSingleAnimalType(animalType) && animalCount < capacity;
+//        } else {
+//            return false;
+//        }
+//    }
+// 특정 위치에 동물을 배치할 수 있는지 확인하는 메서드
+// 특정 위치에 동물을 배치할 수 있는지 확인하는 메서드
+public boolean canPlaceAnimal(int x, int y, String animalType) {
+    if (tiles[x][y] instanceof Room) {
+        Room room = (Room) tiles[x][y];
+        return !room.hasAnimal();
+    } else if (tiles[x][y] instanceof Barn) {
+        Barn barn = (Barn) tiles[x][y];
+        if (isFenceArea(x, y)) {
+            FenceArea area = getFenceArea(x, y);
+            int capacity = area.getRemainingCapacity();
+            return area.isSingleAnimalType(animalType) && capacity > 0;
         } else {
-            return false;
+            return !barn.hasAnimal();
         }
+    } else if (isFenceArea(x, y)) {
+        FenceArea area = getFenceArea(x, y);
+        int capacity = area.getRemainingCapacity();
+        return area.isSingleAnimalType(animalType) && capacity > 0;
+    } else {
+        return false;
     }
+}
 
 
     // 보드에 동물을 추가하는 메서드
@@ -775,22 +902,47 @@ public Set<int[]> getValidFencePositions() {
         if (canPlaceAnimal(x, y, animal.getType())) {
             if (tiles[x][y] instanceof Room) {
                 ((Room) tiles[x][y]).setAnimal(animal);
+                System.out.println("tile is a room");
             } else if (tiles[x][y] instanceof Barn) {
+                System.out.println("tile is a barn");
                 if (isFenceArea(x, y)) {
                     addAnimalToFenceArea(animal, x, y);
+                    System.out.println("barn is in a fence");
                 } else {
                     ((Barn) tiles[x][y]).setAnimal(animal);
+                    System.out.println("barn is not in a fence");
                 }
             } else if (isFenceArea(x, y)) {
                 addAnimalToFenceArea(animal, x, y);
+                System.out.println("tile is a fence");
             } else {
                 animals[x][y] = animal;
+                System.out.println("tile is empty");
             }
             animal.setX(x);
             animal.setY(y);
         } else {
-            System.out.println("해당 위치에는 동물을 배치할 수 없습니다.");
+            System.out.println("(" + x + "," + y + ") 해당 위치에는 동물을 배치할 수 없습니다.");
         }
+    }
+
+    // 보드에 울타리 영역 내에 동물을 추가하는 메서드
+    public void addAnimalToFenceArea(Animal animal, int x, int y) {
+        for (FenceArea area : managedFenceAreas) {
+            if (area.containsTile(x, y)) {
+                if (area.isSingleAnimalType(animal.getType())) {
+                    area.addAnimal(animal);
+                    animals[x][y] = animal;
+                    animal.setX(x);
+                    animal.setY(y);
+                    area.updateRemainingCapacity(); // 수용 능력 업데이트
+                } else {
+                    System.out.println("해당 울타리 영역에는 다른 종류의 동물이 이미 있습니다.");
+                }
+                return;
+            }
+        }
+        System.out.println("해당 위치에 동물을 추가할 수 없습니다.");
     }
 
     // 유효한 동물 배치 위치를 반환하는 메서드
@@ -816,25 +968,10 @@ public Set<int[]> getValidFencePositions() {
         return false;
     }
 
-//    private int calculateFenceCapacity() {
-//        int capacity = 0;
-//        for (FenceArea area : fenceAreas) {
-//            int fenceAreaCapacity = 1;
-//            for (int[] tile : area.getTiles()) {
-//                if (tiles[tile[0]][tile[1]] instanceof Barn) {
-//                    fenceAreaCapacity *= 4;
-//                } else {
-//                    fenceAreaCapacity *= 2;
-//                }
-//            }
-//            capacity += fenceAreaCapacity;
-//        }
-//        return capacity;
-//    }
 public int calculateFenceCapacity() {
     int capacity = 0;
     for (FenceArea area : fenceAreas) {
-        capacity += area.calculateCapacity();
+        capacity += area.getRemainingCapacity();
     }
     return capacity;
 }
@@ -869,8 +1006,13 @@ public int calculateFenceCapacity() {
         return count;
     }
 
-    public List<FenceArea> getFenceAreas() {
-        return fenceAreas;
+    private FenceArea getFenceArea(int x, int y) {
+        for (FenceArea area : managedFenceAreas) {
+            if (area.containsTile(x, y)) {
+                return area;
+            }
+        }
+        return null;
     }
 
     // 동물 번식 단계 구현
@@ -885,20 +1027,7 @@ public int calculateFenceCapacity() {
         return newAnimals;
     }
 
-    // 보드에 동물을 추가하는 메서드
-    // 특정 위치에 동물을 추가하는 메서드
-    public void addAnimalToFenceArea(Animal animal, int x, int y) {
-        for (FenceArea area : fenceAreas) {
-            if (area.containsTile(x, y)) {
-                area.addAnimal(animal);
-                animals[x][y] = animal;
-                animal.setX(x);
-                animal.setY(y);
-                return;
-            }
-        }
-        System.out.println("해당 위치에 동물을 추가할 수 없습니다.");
-    }
+
 
     public void addAnimal(Animal animal) {
         // 초기에는 보드 밖에 배치
