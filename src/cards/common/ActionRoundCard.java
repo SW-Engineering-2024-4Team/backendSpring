@@ -183,20 +183,32 @@ public interface ActionRoundCard extends CommonCard {
 
     // 울타리 짓기
     default void buildFence(Player player) {
+        // 플레이어가 울타리를 지을 수 있는 유효한 좌표를 가져옴.
         Set<int[]> validPositions = player.getPlayerBoard().getValidFencePositions();
+
+        // 지을 수 있는 좌표가 없으면 짓지 못함.
         if (!validPositions.isEmpty()) {
             List<int[]> selectedPositions = new ArrayList<>();
+
+            /*
+            * 프론트엔드가 한 칸의 좌표를 보내줄 때 마다 필요한 자원 계산 및 유효 좌표를 업데이트 하기 위한 변수
+            * 지을 좌표들을 모으기 위함.
+            * */
+
             boolean fenceBuildingComplete = false;
             while (!fenceBuildingComplete) {
                 // TODO 플레이어 좌표 입력 로직 (여기서는 유효 위치 중 하나를 선택하는 것으로 가정)
                 int[] position = validPositions.iterator().next();
                 selectedPositions.add(position);
                 validPositions = player.getPlayerBoard().getValidFencePositions();
+                // 유효 좌표가 없거나, 자원 부족등의 이유로 짓지 못하면 해당 좌표까지만 울타리를 지음
                 if (validPositions.isEmpty() || !player.canContinueFenceBuilding()) {
                     fenceBuildingComplete = true;
                 }
             }
+            // 선택된 좌표들의 모음으로 울타리를 지음
             player.getPlayerBoard().buildFences(selectedPositions, player);
+            // 울타리 짓는데 필요한 자원을 차감
             player.payResources(Map.of("wood", player.getPlayerBoard().calculateRequiredWoodForFences(selectedPositions)));
             System.out.println("Fences built at: " + selectedPositions.stream().map(Arrays::toString).collect(Collectors.joining(", ")));
         } else {

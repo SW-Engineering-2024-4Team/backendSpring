@@ -146,10 +146,10 @@ public class PlayerBoard {
 //}
 
     private void addBarnToFenceArea(int x, int y) {
-        for (FenceArea area : fenceAreas) {
+        for (FenceArea area : managedFenceAreas) {
             if (area.containsTile(x, y)) {
                 area.addBarn((Barn) tiles[x][y]);
-                return;
+//                return;
             }
         }
         // 해당 타일이 포함된 울타리 영역이 없으면 새로 생성
@@ -231,20 +231,33 @@ public class PlayerBoard {
     }
 
     public void buildFences(List<int[]> coordinates, Player player) {
+        // 유효 좌표가 없는 경우
         if (coordinates == null || coordinates.isEmpty()) {
             System.out.println("No coordinates provided.");
             return;
         }
 
+        // 자원이 부족한 경우
         int woodRequired = calculateRequiredWoodForFences(coordinates);
         if (player.getResource("wood") < woodRequired) {
             System.out.println("Not enough wood to build fences.");
             return;
         }
 
+        // 유효한 좌표가 아닌 경우
         if (!validateCoordinates(coordinates)) {
             System.out.println("Invalid coordinates provided.");
             return;
+        }
+
+        // 이미 울타리가 있는지 확인
+        for (int[] coord : coordinates) {
+            int x = coord[0];
+            int y = coord[1];
+            if (isFenceArea(x, y)) {
+                System.out.println("Fence already exists at (" + x + ", " + y + ").");
+                return;
+            }
         }
 
         for (int[] coord : coordinates) {
@@ -254,6 +267,7 @@ public class PlayerBoard {
             // 울타리가 외양간이 있는 타일에 지어질 경우
             if (tiles[x][y] instanceof Barn) {
                 Barn barn = (Barn) tiles[x][y];
+
                 if (barn.hasAnimal()) {
                     // 외양간에 동물이 있는 경우, 울타리 영역에 동물을 추가
                     Animal animal = barn.getAnimal();
@@ -273,7 +287,7 @@ public class PlayerBoard {
         }
 
         player.addResource("wood", -woodRequired);
-        mergeFenceAreas(coordinates); // 새로운 메서드 호출
+        mergeFenceAreas(coordinates);
     }
 
     // 새로운 울타리 영역을 생성하거나 기존 영역에 병합하는 메서드
@@ -902,22 +916,22 @@ public boolean canPlaceAnimal(int x, int y, String animalType) {
         if (canPlaceAnimal(x, y, animal.getType())) {
             if (tiles[x][y] instanceof Room) {
                 ((Room) tiles[x][y]).setAnimal(animal);
-                System.out.println("tile is a room");
+//                System.out.println("tile is a room");
             } else if (tiles[x][y] instanceof Barn) {
-                System.out.println("tile is a barn");
+//                System.out.println("tile is a barn");
                 if (isFenceArea(x, y)) {
                     addAnimalToFenceArea(animal, x, y);
-                    System.out.println("barn is in a fence");
+//                    System.out.println("barn is in a fence");
                 } else {
                     ((Barn) tiles[x][y]).setAnimal(animal);
-                    System.out.println("barn is not in a fence");
+//                    System.out.println("barn is not in a fence");
                 }
             } else if (isFenceArea(x, y)) {
                 addAnimalToFenceArea(animal, x, y);
-                System.out.println("tile is a fence");
+//                System.out.println("tile is a fence");
             } else {
                 animals[x][y] = animal;
-                System.out.println("tile is empty");
+//                System.out.println("tile is empty");
             }
             animal.setX(x);
             animal.setY(y);
@@ -968,10 +982,10 @@ public boolean canPlaceAnimal(int x, int y, String animalType) {
         return false;
     }
 
-public int calculateFenceCapacity() {
+public int calculateInitFenceCapacity() {
     int capacity = 0;
-    for (FenceArea area : fenceAreas) {
-        capacity += area.getRemainingCapacity();
+    for (FenceArea area : managedFenceAreas) {
+        capacity += area.getInitalCapacity();
     }
     return capacity;
 }
