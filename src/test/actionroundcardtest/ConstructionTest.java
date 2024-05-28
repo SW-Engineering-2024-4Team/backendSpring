@@ -118,14 +118,6 @@ public class ConstructionTest {
         return padding + str + padding;
     }
 
-
-
-
-
-
-
-
-
     private void printPlayerResources(String message) {
         System.out.println(message);
         for (Map.Entry<String, Integer> resource : player.getResources().entrySet()) {

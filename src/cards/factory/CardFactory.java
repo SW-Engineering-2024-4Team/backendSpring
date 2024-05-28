@@ -5,8 +5,7 @@ import cards.action.NonAccumulativeActionCard;
 import cards.common.CommonCard;
 import cards.factory.imp.action.Bush;
 import cards.factory.imp.action.ClayMine;
-import cards.factory.imp.action.WanderingTheaterActionCard;
-import cards.factory.imp.action.Bush;
+import cards.factory.imp.action.WanderingTheater;
 import cards.majorimprovement.MajorImprovementCard;
 import cards.minorimprovement.TestMinorImprovementCard;
 import cards.occupation.TestOccupationCard;
@@ -30,7 +29,7 @@ public class CardFactory {
         }
 
         actionCards.add(new ClayMine(15));
-        actionCards.add(new WanderingTheaterActionCard(16));
+        actionCards.add(new WanderingTheater(16));
         actionCards.add(new Bush(17));
 
         int roundId = 0;

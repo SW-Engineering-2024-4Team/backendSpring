@@ -1,10 +1,12 @@
 package test.actionroundcardtest;
 
 import cards.action.AccumulativeActionCard;
+import cards.round.AccumulativeRoundCard;
 import cards.action.NonAccumulativeActionCard;
 import cards.action.TestAccumulativeActionCard;
 import cards.common.ActionRoundCard;
-import cards.factory.imp.action.WanderingTheaterActionCard;
+import cards.factory.imp.round.SheepMarket;
+import cards.factory.imp.action.WanderingTheater;
 import cards.factory.imp.action.Bush;
 import cards.factory.imp.action.ClayMine;
 import controllers.GameController;
@@ -14,11 +16,7 @@ import models.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import javax.swing.*;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.jupiter.api.Assertions.*;
@@ -33,6 +31,7 @@ public class ResourceGainTest {
     private ActionRoundCard wanderingTheaterCard;
     private ActionRoundCard woodGatheringCard;
     private ActionRoundCard clayPitCard;
+    private ActionRoundCard sheepMarket;
 
     @BeforeEach
     public void setUp() {
@@ -49,13 +48,15 @@ public class ResourceGainTest {
 
         actionCard = new TestAccumulativeActionCard(1);
         nonAccumulativeCard = new NonAccumulativeActionCard(2, "Non-Accumulative Test Card", "This is a non-accumulative test card.");
-        wanderingTheaterCard = new WanderingTheaterActionCard(3);
+        wanderingTheaterCard = new WanderingTheater(3);
         woodGatheringCard = new Bush(4);
         clayPitCard = new ClayMine(5);
+        sheepMarket = new SheepMarket(6, 1);
 
         // Initialize MainBoard
         MainBoard mainBoard = gameController.getMainBoard();
         mainBoard.setActionCards(new ArrayList<>());
+        mainBoard.setRoundCards(new ArrayList<>());
 
         // Add cards to MainBoard
         mainBoard.getActionCards().add(actionCard);
@@ -63,13 +64,14 @@ public class ResourceGainTest {
         mainBoard.getActionCards().add(wanderingTheaterCard);
         mainBoard.getActionCards().add(woodGatheringCard);
         mainBoard.getActionCards().add(clayPitCard);
+        mainBoard.getRoundCards().add(sheepMarket);
 
         // Reassign cards to ensure we have the same references
-        actionCard = mainBoard.getActionCards().stream().filter(card -> card.getId() == 1).findFirst().orElse(null);
-        nonAccumulativeCard = mainBoard.getActionCards().stream().filter(card -> card.getId() == 2).findFirst().orElse(null);
-        wanderingTheaterCard = mainBoard.getActionCards().stream().filter(card -> card.getId() == 3).findFirst().orElse(null);
-        woodGatheringCard = mainBoard.getActionCards().stream().filter(card -> card.getId() == 4).findFirst().orElse(null);
-        clayPitCard = mainBoard.getActionCards().stream().filter(card -> card.getId() == 5).findFirst().orElse(null);
+//        actionCard = mainBoard.getActionCards().stream().filter(card -> card.getId() == 1).findFirst().orElse(null);
+//        nonAccumulativeCard = mainBoard.getActionCards().stream().filter(card -> card.getId() == 2).findFirst().orElse(null);
+//        wanderingTheaterCard = mainBoard.getActionCards().stream().filter(card -> card.getId() == 3).findFirst().orElse(null);
+//        woodGatheringCard = mainBoard.getActionCards().stream().filter(card -> card.getId() == 4).findFirst().orElse(null);
+//        clayPitCard = mainBoard.getActionCards().stream().filter(card -> card.getId() == 5).findFirst().orElse(null);
 
     }
 
@@ -227,10 +229,81 @@ public class ResourceGainTest {
 //        System.out.println("Animal capacity after gaining resources: " + capacity);
 
         // 검증
-        assertEquals(8, capacity, "The capacity should be 8 after gaining resources and adding animals to the board.");
+        assertEquals(7, capacity, "The capacity should be 8 after gaining resources and adding animals to the board.");
 //        assertEquals(4, player.getResource("sheep"), "There should be 4 sheep resources.");
         printPlayerResources(player,"Resources after testGainResourcesWithAnimals:");
     }
+
+    @Test
+    public void testSheepMarket() {
+        System.out.println("라운드카드");
+        List<ActionRoundCard> actionRoundCards =  gameController.getMainBoard().getRoundCards();
+        for (ActionRoundCard actionRoundCard : actionRoundCards) {
+            System.out.println("actionRoundCard.getName() = " + actionRoundCard.getName());
+        }
+        gameController.getMainBoard().revealRoundCard(1);
+
+        player.resetResources();
+        printPlayerResources(player, "Resources before testClayPitCard:");
+
+        // 첫 번째 누적
+        System.out.println("첫 번째 누적");
+        gameController.getMainBoard().accumulateResources();
+
+        // 누적 자원 확인
+        Map<String, Integer> accumulatedResources = ((AccumulativeRoundCard) sheepMarket).getAccumulatedResources();
+        assertEquals(1, accumulatedResources.get("sheep"), "Accumulated sheep should be 1.");
+
+        // 두 번째 누적
+        System.out.println("두 번째 누적");
+        gameController.getMainBoard().accumulateResources();
+
+        // 누적 자원 확인
+        accumulatedResources = ((AccumulativeRoundCard) sheepMarket).getAccumulatedResources();
+        assertEquals(2, accumulatedResources.get("sheep"), "Accumulated clay should be 2.");
+
+//         동일한 객체인지 확인
+        ActionRoundCard clayPitCardFromBoard = gameController.getMainBoard().getRevealedRoundCards().stream()
+                .filter(card -> "양 시장".equals(card.getName()))
+                .findFirst()
+                .orElse(null);
+        assertSame(sheepMarket, clayPitCardFromBoard, "sheepMarket should be the same object as the one in the MainBoard.");
+
+
+        // 플레이어가 자원을 얻는지 확인
+        System.out.println("is card occupied? " + player.getGameController().getMainBoard().isCardOccupied(sheepMarket));
+        // 유효한 동물 배치 위치 출력
+        Set<int[]> validPositions = player.getPlayerBoard().getValidAnimalPositions("sheep");
+        printValidPositions(validPositions);
+
+        player.placeFamilyMember(sheepMarket);
+        System.out.println("집에 수용, 한 마리 방출");
+        printPlayerResources(player, "두 번 누적 후 자원 획득 양 1");
+
+        actionRoundCards =  gameController.getMainBoard().getRoundCards();
+        for (ActionRoundCard actionRoundCard : actionRoundCards) {
+            System.out.println("actionRoundCard.getName() = " + actionRoundCard.getName());
+        }
+
+        assertEquals(1, player.getResource("sheep"), "Player should have 1 sheep.");
+        assertTrue(sheepMarket.isOccupied(), "Card should be occupied after executing action card.");
+
+        // occupied 상태에서 자원 누적 테스트
+        System.out.println("세 번째 누적 (점유 상태에서)");
+        gameController.getMainBoard().accumulateResources();
+        accumulatedResources = ((AccumulativeRoundCard) sheepMarket).getAccumulatedResources();
+        assertEquals(1, accumulatedResources.get("sheep"), "Accumulated sheep should be reset to 3 when card is occupied.");
+        assertFalse(gameController.getMainBoard().isCardOccupied(sheepMarket));
+
+        printPlayerResources(player, "Accumulated resources after card is occupied and reset:");
+    }
+    private void printValidPositions(Set<int[]> positions) {
+        System.out.println("Valid positions for placing animals:");
+        for (int[] position : positions) {
+            System.out.println("Position: (" + position[0] + ", " + position[1] + ")");
+        }
+    }
+
 
 
     @Test

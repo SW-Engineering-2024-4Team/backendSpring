@@ -756,7 +756,9 @@ private void exploreFenceArea(int x, int y, boolean[][] visited, FenceArea area)
         for (int i = 0; i < tiles.length; i++) {
             for (int j = 0; j < tiles[0].length; j++) {
                 if (tiles[i][j] instanceof Barn && !isFenceArea(i, j)) {
-                    capacity++;
+                    if (!((Barn) tiles[i][j]).hasAnimal()) {
+                        capacity++;
+                    }
                 }
             }
         }
@@ -765,17 +767,24 @@ private void exploreFenceArea(int x, int y, boolean[][] visited, FenceArea area)
 
     // 집의 수용 능력을 계산하는 메서드
     private int calculateHouseCapacity() {
+        boolean isAnimalInHouse = false;
         for (int i = 0; i < tiles.length; i++) {
             for (int j = 0; j < tiles[0].length; j++) {
                 if (tiles[i][j] instanceof Room) {
-                    return 1; // 집은 모두 합쳐서 한 마리만 수용 가능
+                    if (((Room) tiles[i][j]).hasAnimal()) {
+                        isAnimalInHouse = true;
+                    }
                 }
             }
         }
-        return 0; // 집이 없으면 0
+        // 집은 모두 합쳐서 한 마리만 수용 가능
+        // 집이 없으면 0
+        if (isAnimalInHouse) {
+            return  0;
+        }
+        return 1;
     }
 
-    // TODO 집, 외양간 추가 필요
     public int getAnimalCapacity() {
         int totalCapacity = 0;
         for (FenceArea area : managedFenceAreas) {

@@ -422,25 +422,57 @@ public class Player {
     }
 
     // 새로 추가된 동물들을 플레이어 보드에 배치하는 메서드
+//    public int placeNewAnimals() {;
+//        int placedCount = 0;
+//        List<Animal> animalsToRemove = new ArrayList<>();
+//        Iterator<Animal> iterator = newAnimals.iterator();
+//        while (iterator.hasNext()) {
+//            Animal animal = iterator.next();
+//            Set<int[]> validPositions = playerBoard.getValidAnimalPositions(animal.getType());
+//            if (!validPositions.isEmpty()) {
+//                // TODO 동물을 배치하는 로직 구현
+//                int[] position = validPositions.iterator().next(); // 예시로 첫 번째 유효 위치 선택
+//                System.out.println("동물 배치 위치: (" + position[0] + ", " + position[1] + ")");
+//                placeAnimalOnBoard(animal, position[0], position[1]);
+//                placedCount++;
+//                iterator.remove();
+//            } else {
+//                System.out.println(animal.getType() + " 방생됨.");
+//                iterator.remove();
+//            }
+//        }
+//        newAnimals.removeAll(animalsToRemove);
+//        return placedCount;
+//    }
+
+    // 새로 추가된 동물들을 플레이어 보드에 배치하는 메서드
     public int placeNewAnimals() {
         int placedCount = 0;
+        List<Animal> animalsToRemove = new ArrayList<>();
         Iterator<Animal> iterator = newAnimals.iterator();
+
         while (iterator.hasNext()) {
             Animal animal = iterator.next();
             Set<int[]> validPositions = playerBoard.getValidAnimalPositions(animal.getType());
+
             if (!validPositions.isEmpty()) {
-                // TODO 동물을 배치하는 로직 구현
+                // 동물을 배치하는 로직 구현
                 int[] position = validPositions.iterator().next(); // 예시로 첫 번째 유효 위치 선택
+                System.out.println("동물 배치 위치: (" + position[0] + ", " + position[1] + ")");
                 placeAnimalOnBoard(animal, position[0], position[1]);
                 placedCount++;
-                iterator.remove();
+                animalsToRemove.add(animal); // 제거할 동물을 리스트에 추가
             } else {
                 System.out.println(animal.getType() + " 방생됨.");
-                iterator.remove();
+                animalsToRemove.add(animal); // 제거할 동물을 리스트에 추가
             }
         }
+
+        // 동물을 한 번에 제거
+        newAnimals.removeAll(animalsToRemove);
         return placedCount;
     }
+
 
     // 외양간 짓기 메서드
     public void buildBarn(int x, int y) {

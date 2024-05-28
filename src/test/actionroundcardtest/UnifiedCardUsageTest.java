@@ -1,5 +1,7 @@
 package test.actionroundcardtest;
 
+import cards.common.CommonCard;
+import cards.common.UnifiedCard;
 import cards.minorimprovement.TestMinorImprovementCard;
 import cards.occupation.TestOccupationCard;
 import controllers.GameController;
@@ -47,12 +49,36 @@ public class UnifiedCardUsageTest {
         return players;
     }
 
+    private void printPlayerCards(Player player, String type) {
+        List<? extends CommonCard> cards = new ArrayList<>();
+        if (type.equals("occupation")) {
+            cards = player.getOccupationCards();
+        }
+        if (type.equals("minor")) {
+            cards = player.getMinorImprovementCards();
+        }
+        if (type.equals("major")) {
+            cards = player.getMajorImprovementCards();
+        }
+        if (type.equals("active")) {
+            cards = player.getActiveCards();
+        }
+        System.out.println("type = " + type);
+        for (CommonCard card : cards) {
+            System.out.println("card = " + card.getName());
+        }
+    }
+
+
     // TODO 데고레이션 테스트
     @Test
     public void testOccupationCardUsage() {
         player.resetResources();
         player.addCard(occupationCard, "occupation");
-        occupationCard.execute(player);
+        printPlayerCards(player,"occupation");
+//        occupationCard.execute(player);
+        player.useUnifiedCard(occupationCard);
+        printPlayerCards(player,"active");
 
         assertEquals(2, player.getResource("food"), "Player should have 2 food after using occupation card.");
     }

@@ -22,6 +22,7 @@ public interface ActionRoundCard extends CommonCard {
             int amount = entry.getValue();
 
             if (resource.equals("sheep")) {
+                System.out.println("양 자원 시작");
                 // 양 자원일 경우
                 for (int i = 0; i < amount; i++) {
                     // 양 객체를 추가하여 플레이어에게 배치 요청
@@ -30,6 +31,7 @@ public interface ActionRoundCard extends CommonCard {
                 }
                 // 배치된 양의 수를 카운트하여 자원으로 추가
                 int placedSheep = player.placeNewAnimals();
+                System.out.println("placedSheep = " + placedSheep);
                 player.addResource(resource, placedSheep);
             } else {
                 // 일반 자원일 경우
@@ -303,4 +305,5 @@ public interface ActionRoundCard extends CommonCard {
     default void applyAdditionalEffects(Player player) {
         // 추가 효과가 필요한 경우 오버라이드하여 구현
     }
+
 }

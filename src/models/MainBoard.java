@@ -46,6 +46,8 @@ public class MainBoard {
     public void revealRoundCard(int round) {
         ActionRoundCard roundCard = roundCards.get(round - 1);
         roundCard.reveal();
+        System.out.println("Round " + round + " card revealed: " + roundCard.getName());
+
         // 프론트엔드에 라운드 카드 공개 메시지 전송
         // WebSocketService.sendMessageToClient("roundCardRevealed", roundCard);
     }
