@@ -15,6 +15,18 @@ public class MainBoard {
     private List<ActionRoundCard> roundCards;
     private List<CommonCard> majorImprovementCards;
 
+    public void setActionCards(List<ActionRoundCard> actionCards) {
+        this.actionCards = actionCards;
+    }
+
+    public void setRoundCards(List<ActionRoundCard> roundCards) {
+        this.roundCards = roundCards;
+    }
+
+    public void setMajorImprovementCards(List<CommonCard> majorImprovementCards) {
+        this.majorImprovementCards = majorImprovementCards;
+    }
+
     public MainBoard() {
         this.actionCards = new ArrayList<>();
         this.roundCards = new ArrayList<>();

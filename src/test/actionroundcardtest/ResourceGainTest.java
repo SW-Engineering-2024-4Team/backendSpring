@@ -2,23 +2,27 @@ package test.actionroundcardtest;
 
 import cards.action.AccumulativeActionCard;
 import cards.action.NonAccumulativeActionCard;
+import cards.action.TestAccumulativeActionCard;
 import cards.common.ActionRoundCard;
+import cards.factory.imp.action.WanderingTheaterActionCard;
+import cards.factory.imp.action.Bush;
+import cards.factory.imp.action.ClayMine;
 import controllers.GameController;
 import controllers.RoomController;
 import enums.RoomType;
-import models.Animal;
-import models.FamilyMember;
-import models.Player;
-import models.Room;
+import models.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import javax.swing.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static org.junit.Assert.assertFalse;
 import static org.junit.jupiter.api.Assertions.*;
+// 나머지 import 문은 동일
 
 public class ResourceGainTest {
     private GameController gameController;
@@ -26,6 +30,9 @@ public class ResourceGainTest {
     private Player player2;
     private ActionRoundCard actionCard;
     private ActionRoundCard nonAccumulativeCard;
+    private ActionRoundCard wanderingTheaterCard;
+    private ActionRoundCard woodGatheringCard;
+    private ActionRoundCard clayPitCard;
 
     @BeforeEach
     public void setUp() {
@@ -40,11 +47,30 @@ public class ResourceGainTest {
         accumulatedAmounts.put("food", 1);
         accumulatedAmounts.put("wood", 2);
 
-
-        actionCard = new AccumulativeActionCard(1, "Accumulative Test Card", "This is an accumulative test card.", accumulatedAmounts);
+        actionCard = new TestAccumulativeActionCard(1);
         nonAccumulativeCard = new NonAccumulativeActionCard(2, "Non-Accumulative Test Card", "This is a non-accumulative test card.");
-        gameController.getMainBoard().getActionCards().add(actionCard);
-        gameController.getMainBoard().getActionCards().add(nonAccumulativeCard);
+        wanderingTheaterCard = new WanderingTheaterActionCard(3);
+        woodGatheringCard = new Bush(4);
+        clayPitCard = new ClayMine(5);
+
+        // Initialize MainBoard
+        MainBoard mainBoard = gameController.getMainBoard();
+        mainBoard.setActionCards(new ArrayList<>());
+
+        // Add cards to MainBoard
+        mainBoard.getActionCards().add(actionCard);
+        mainBoard.getActionCards().add(nonAccumulativeCard);
+        mainBoard.getActionCards().add(wanderingTheaterCard);
+        mainBoard.getActionCards().add(woodGatheringCard);
+        mainBoard.getActionCards().add(clayPitCard);
+
+        // Reassign cards to ensure we have the same references
+        actionCard = mainBoard.getActionCards().stream().filter(card -> card.getId() == 1).findFirst().orElse(null);
+        nonAccumulativeCard = mainBoard.getActionCards().stream().filter(card -> card.getId() == 2).findFirst().orElse(null);
+        wanderingTheaterCard = mainBoard.getActionCards().stream().filter(card -> card.getId() == 3).findFirst().orElse(null);
+        woodGatheringCard = mainBoard.getActionCards().stream().filter(card -> card.getId() == 4).findFirst().orElse(null);
+        clayPitCard = mainBoard.getActionCards().stream().filter(card -> card.getId() == 5).findFirst().orElse(null);
+
     }
 
     private List<Player> createMockPlayers() {
@@ -63,20 +89,7 @@ public class ResourceGainTest {
         }
     }
 
-    @Test
-    public void testGainResources() {
-        printPlayerResources(player,"Resources before testGainResources:");
-
-        Map<String, Integer> resources = new HashMap<>();
-        resources.put("wood", 3);
-        resources.put("clay", 2);
-        actionCard.gainResources(player, resources);
-
-        printPlayerResources(player,"Resources after testGainResources:");
-
-        assertEquals(3, player.getResource("wood"), "Player should have 3 wood.");
-        assertEquals(2, player.getResource("clay"), "Player should have 2 clay.");
-    }
+    // 나머지 테스트 메서드와 함께 새로운 테스트 메서드 추가
 
     @Test
     public void testAccumulateResources() {
@@ -127,6 +140,23 @@ public class ResourceGainTest {
         assertEquals(2, player2.getResource("wood"), "Player should have 2 wood.");
         assertTrue(actionCard.isOccupied(), "Card should be occupied after executing action card by player2.");
     }
+
+    @Test
+    public void testGainResources() {
+        printPlayerResources(player,"Resources before testGainResources:");
+
+        Map<String, Integer> resources = new HashMap<>();
+        resources.put("wood", 3);
+        resources.put("clay", 2);
+        actionCard.gainResources(player, resources);
+
+        printPlayerResources(player,"Resources after testGainResources:");
+
+        assertEquals(3, player.getResource("wood"), "Player should have 3 wood.");
+        assertEquals(2, player.getResource("clay"), "Player should have 2 clay.");
+    }
+
+
 
 
 
@@ -200,6 +230,65 @@ public class ResourceGainTest {
         assertEquals(8, capacity, "The capacity should be 8 after gaining resources and adding animals to the board.");
 //        assertEquals(4, player.getResource("sheep"), "There should be 4 sheep resources.");
         printPlayerResources(player,"Resources after testGainResourcesWithAnimals:");
+    }
+
+
+    @Test
+    public void testClayMineCard() {
+
+        List<ActionRoundCard> actionRoundCards =  gameController.getMainBoard().getActionCards();
+        for (ActionRoundCard actionRoundCard : actionRoundCards) {
+            System.out.println("actionRoundCard.getName() = " + actionRoundCard.getName());
+        }
+
+        player.resetResources();
+        printPlayerResources(player, "Resources before testClayPitCard:");
+
+        // 첫 번째 누적
+        System.out.println("첫 번째 누적");
+        gameController.getMainBoard().accumulateResources();
+
+        // 누적 자원 확인
+        Map<String, Integer> accumulatedResources = ((AccumulativeActionCard) clayPitCard).getAccumulatedResources();
+        assertEquals(2, accumulatedResources.get("clay"), "Accumulated clay should be 3.");
+
+        // 두 번째 누적
+        System.out.println("두 번째 누적");
+        gameController.getMainBoard().accumulateResources();
+
+        // 누적 자원 확인
+        accumulatedResources = ((AccumulativeActionCard) clayPitCard).getAccumulatedResources();
+        assertEquals(4, accumulatedResources.get("clay"), "Accumulated clay should be 6.");
+
+        // 동일한 객체인지 확인
+//        ActionRoundCard clayPitCardFromBoard = gameController.getMainBoard().getActionCards().stream()
+//                .filter(card -> "점토 채굴장".equals(card.getName()))
+//                .findFirst()
+//                .orElse(null);
+//        assertSame(clayPitCard, clayPitCardFromBoard, "clayPitCard should be the same object as the one in the MainBoard.");
+
+
+        // 플레이어가 자원을 얻는지 확인
+        System.out.println("is card occupied? " + player.getGameController().getMainBoard().isCardOccupied(clayPitCard));
+        player.placeFamilyMember(clayPitCard);
+        printPlayerResources(player, "두 번 누적 후 자원 획득 흙 6");
+
+       actionRoundCards =  gameController.getMainBoard().getActionCards();
+       for (ActionRoundCard actionRoundCard : actionRoundCards) {
+           System.out.println("actionRoundCard.getName() = " + actionRoundCard.getName());
+       }
+
+        assertEquals(4, player.getResource("clay"), "Player should have 6 clay.");
+        assertTrue(clayPitCard.isOccupied(), "Card should be occupied after executing action card.");
+
+        // occupied 상태에서 자원 누적 테스트
+        System.out.println("세 번째 누적 (점유 상태에서)");
+        gameController.getMainBoard().accumulateResources();
+        accumulatedResources = ((AccumulativeActionCard) clayPitCard).getAccumulatedResources();
+        assertEquals(2, accumulatedResources.get("clay"), "Accumulated clay should be reset to 3 when card is occupied.");
+        assertFalse(gameController.getMainBoard().isCardOccupied(clayPitCard));
+
+        printPlayerResources(player, "Accumulated resources after card is occupied and reset:");
     }
 
 

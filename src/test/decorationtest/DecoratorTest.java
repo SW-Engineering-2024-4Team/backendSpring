@@ -19,7 +19,6 @@
 //    private GameController gameController;
 //    private Player player;
 //    private MagicianOccupationCard magicianCard;
-//    private WanderingTheaterActionCard actionCard;
 //
 //    @BeforeEach
 //    public void setUp() {

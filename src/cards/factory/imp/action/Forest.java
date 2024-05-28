@@ -6,15 +6,15 @@ import models.Player;
 import java.util.HashMap;
 import java.util.Map;
 
-public class WanderingTheaterActionCard extends AccumulativeActionCard {
+public class Forest extends AccumulativeActionCard {
 
-    public WanderingTheaterActionCard(int id) {
-        super(id, "유랑극단", "음식자원 1개를 누적합니다..", createAccumulatedAmounts());
+    public Forest(int id, String name, String description, Map<String, Integer> accumulatedAmounts) {
+        super(id, "숲", "나무 자원 3개를 누적합니다.", accumulatedAmounts);
     }
 
     private static Map<String, Integer> createAccumulatedAmounts() {
         Map<String, Integer> accumulatedAmounts = new HashMap<>();
-        accumulatedAmounts.put("food", 1); // 음식 1개를 누적
+        accumulatedAmounts.put("wood", 3);
         return accumulatedAmounts;
     }
 
@@ -26,4 +26,5 @@ public class WanderingTheaterActionCard extends AccumulativeActionCard {
         setOccupied(true);
         clearAccumulatedResources();
     }
+
 }

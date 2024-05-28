@@ -6,10 +6,10 @@ import models.Player;
 import java.util.HashMap;
 import java.util.Map;
 
-public class WanderingTheaterActionCard extends AccumulativeActionCard {
+public class Fishing extends AccumulativeActionCard {
 
-    public WanderingTheaterActionCard(int id) {
-        super(id, "유랑극단", "음식자원 1개를 누적합니다..", createAccumulatedAmounts());
+    public Fishing(int id) {
+        super(id, "낚시", "음식자원 1개를 누적합니다..", createAccumulatedAmounts());
     }
 
     private static Map<String, Integer> createAccumulatedAmounts() {

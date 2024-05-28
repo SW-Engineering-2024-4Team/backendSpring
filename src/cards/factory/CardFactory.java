@@ -2,20 +2,20 @@ package cards.factory;
 
 import cards.action.AccumulativeActionCard;
 import cards.action.NonAccumulativeActionCard;
+import cards.common.CommonCard;
+import cards.factory.imp.action.Bush;
+import cards.factory.imp.action.ClayMine;
+import cards.factory.imp.action.WanderingTheaterActionCard;
+import cards.factory.imp.action.Bush;
+import cards.majorimprovement.MajorImprovementCard;
 import cards.minorimprovement.TestMinorImprovementCard;
 import cards.occupation.TestOccupationCard;
 import cards.round.AccumulativeRoundCard;
 import cards.round.NonAccumulativeRoundCard;
-import cards.minorimprovement.MinorImprovementCard;
-import cards.occupation.OccupationCard;
-import cards.majorimprovement.MajorImprovementCard;
-import cards.common.CommonCard;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-
 
 public class CardFactory {
 
@@ -29,7 +29,9 @@ public class CardFactory {
             actionCards.add(new NonAccumulativeActionCard(i + 8, "Non-Accumulative Action Card " + (i + 1), "Description of Non-Accumulative Action Card " + (i + 1)));
         }
 
-
+        actionCards.add(new ClayMine(15));
+        actionCards.add(new WanderingTheaterActionCard(16));
+        actionCards.add(new Bush(17));
 
         int roundId = 0;
         roundCards.add(new AccumulativeRoundCard(roundId++, "Accumulative Round Card A" + (0), "Description of Accumulative Round Card A" + (0), 1, accumulatedAmounts));
@@ -55,13 +57,8 @@ public class CardFactory {
         for (int i = 0; i < 8; i++) {
             minorImprovementCards.add(new TestMinorImprovementCard(i, "Minor Improvement Card " + (i + 1), "Description of Minor Improvement Card " + (i + 1), new HashMap<>(), new HashMap<>(), new HashMap<>()));
             occupationCards.add(new TestOccupationCard(i, "Test Occupation Card " + (i + 1), "Description of Test Occupation Card " + (i + 1), new HashMap<>(), new HashMap<>(), 1, 4));
-
         }
 
-
-//        for (int i = 0; i < 6; i++) {
-//            majorImprovementCards.add(new MajorImprovementCard(i, "Major Improvement Card " + (i + 1), "Description of Major Improvement Card " + (i + 1), new HashMap<>(), new HashMap<>(), new HashMap<>(), 1, false));
-//        }
         for (int i = 0; i < 5; i++) {
             majorImprovementCards.add(new MajorImprovementCard(i, "Major Improvement Card " + (i + 1), "Description of Major Improvement Card " + (i + 1), new HashMap<>(), new HashMap<>(), new HashMap<>(), 1, false));
         }
