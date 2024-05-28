@@ -129,10 +129,14 @@ public class MainBoard {
     }
 
     public void resetFamilyMembersOnCards() {
+        System.out.println("Resetting family members on action cards...");
         for (ActionRoundCard card : actionCards) {
+            System.out.println("Action card: " + card.getName() + ", occupied: " + card.isOccupied());
             card.setOccupied(false);
         }
+        System.out.println("Resetting family members on round cards...");
         for (ActionRoundCard card : roundCards) {
+            System.out.println("Round card: " + card.getName() + ", occupied: " + card.isOccupied());
             card.setOccupied(false);
         }
     }
