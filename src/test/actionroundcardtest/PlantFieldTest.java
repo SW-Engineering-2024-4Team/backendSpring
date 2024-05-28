@@ -2,6 +2,7 @@ package test.actionroundcardtest;
 
 import cards.action.NonAccumulativeActionCard;
 import cards.common.ActionRoundCard;
+import cards.factory.imp.action.PlowField;
 import controllers.GameController;
 import controllers.RoomController;
 import enums.RoomType;
@@ -12,11 +13,14 @@ import org.junit.jupiter.api.Test;
 import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
+import cards.factory.imp.round.PlantSeed;
 
 public class PlantFieldTest {
     private GameController gameController;
     private Player player;
     private ActionRoundCard actionCard;
+    private ActionRoundCard plowField;
+    private ActionRoundCard plantSeed;
 
     @BeforeEach
     public void setUp() {
@@ -28,6 +32,16 @@ public class PlantFieldTest {
 
         actionCard = new NonAccumulativeActionCard(1, "Plant Field Test Card", "This is a plant field test card.");
         gameController.getMainBoard().getActionCards().add(actionCard);
+        plowField = new PlowField(2);
+        plantSeed = new PlantSeed(3, 1);
+
+
+        MainBoard mainBoard = gameController.getMainBoard();
+        mainBoard.setActionCards(new ArrayList<>());
+        mainBoard.setRoundCards(new ArrayList<>());
+
+        mainBoard.getActionCards().add(plantSeed);
+        mainBoard.getRoundCards().add(plantSeed);
     }
 
     private List<Player> createMockPlayers() {
@@ -53,6 +67,85 @@ public class PlantFieldTest {
             }
             System.out.println();
         }
+    }
+
+    public void printPlayerBoardWithFences(String message, Set<int[]> validPositions) {
+        System.out.println(message);
+        Tile[][] tiles = player.getPlayerBoard().getTiles();
+        boolean[][][] fences = player.getPlayerBoard().getFences();
+        int rows = tiles.length;
+        int cols = tiles[0].length;
+        int cellWidth = 5; // 각 셀의 너비를 고정
+
+        // Print the top boundary of the board
+        for (int i = 0; i < rows; i++) {
+            // Print top fences
+            for (int j = 0; j < cols; j++) {
+                System.out.print("+");
+                if (fences[i][j][0]) {
+                    System.out.print("---");
+                } else {
+                    System.out.print("   ");
+                }
+            }
+            System.out.println("+");
+
+            // Print left fences and tiles
+            for (int j = 0; j < cols; j++) {
+                if (fences[i][j][2]) {
+                    System.out.print("|");
+                } else {
+                    System.out.print(" ");
+                }
+
+                boolean isValidPosition = false;
+                for (int[] pos : validPositions) {
+                    if (pos[0] == i && pos[1] == j) {
+                        isValidPosition = true;
+                        break;
+                    }
+                }
+
+                String tileString;
+                if (tiles[i][j] == null) {
+                    if (isValidPosition) {
+                        tileString = "*";
+                    } else {
+                        tileString = "";
+                    }
+                } else if (tiles[i][j] instanceof Room) {
+                    tileString = "r";
+                } else if (tiles[i][j] instanceof Barn) {
+                    tileString = "b";
+                } else if (tiles[i][j] instanceof FieldTile) {
+                    tileString = "f";
+                } else {
+                    tileString = "";
+                }
+                System.out.print(centerString(tileString, cellWidth));
+            }
+            if (fences[i][cols - 1][3]) {
+                System.out.print("|");
+            }
+            System.out.println();
+        }
+
+        // Print the bottom boundary of the board
+        for (int j = 0; j < cols; j++) {
+            System.out.print("+");
+            if (fences[rows - 1][j][1]) {
+                System.out.print("---");
+            } else {
+                System.out.print("   ");
+            }
+        }
+        System.out.println("+");
+    }
+
+    private String centerString(String str, int width) {
+        int paddingSize = (width - str.length()) / 2;
+        String padding = " ".repeat(paddingSize);
+        return padding + str + padding;
     }
 
     private void printPlayerResources(String message) {
@@ -98,5 +191,62 @@ public class PlantFieldTest {
             }
         }
         assertTrue(grainPlanted, "Grain should be planted in the field.");
+    }
+
+    @Test
+    public void testPlowFieldWithPlowFieldCard() {
+        Set<int[]> validPositions = player.getPlayerBoard().getValidPlowPositions();
+        printPlayerBoardWithFences("Player board before plowing field:", validPositions);
+
+        player.placeFamilyMember(plowField);
+
+        // 상태 출력
+        validPositions = player.getPlayerBoard().getValidPlowPositions();
+        printPlayerBoardWithFences("Player board after plowing first field:", validPositions);
+
+        player.placeFamilyMember(plowField);
+        assertTrue(gameController.getMainBoard().isCardOccupied(plowField));
+        gameController.resetFamilyMembers();
+    }
+
+    // TODO 카드 실행 조건이 안되는데도 카드가 점유되는 버그 발생
+    @Test
+    public void testPlantWithPlantSeed() {
+        gameController.getMainBoard().revealRoundCard(1);
+        player.resetResources();
+        player.addResource("grain", 1);
+        player.printPlayerResources("자원 상태");
+
+        Set<int[]> validPositions = player.getPlayerBoard().getValidPlowPositions();
+        printPlayerBoardWithFences("Player board before plowing field:", validPositions);
+
+        player.placeFamilyMember(plowField);
+
+        // 상태 출력
+        validPositions = player.getPlayerBoard().getValidPlowPositions();
+        printPlayerBoardWithFences("Player board after plowing first field:", validPositions);
+
+        player.placeFamilyMember(plantSeed);
+        player.printPlayerResources("자원 상태");
+
+
+        assertTrue(gameController.getMainBoard().isCardOccupied(plowField));
+        assertTrue(gameController.getMainBoard().isCardOccupied(plantSeed));
+        gameController.resetFamilyMembers();
+
+        // 자원이 부족한 상태에서 밭 심으려고 시도
+        player.placeFamilyMember(plantSeed);
+        assertTrue(!gameController.getMainBoard().isCardOccupied(plantSeed), "자원이 부족한 상태에서 밭 심으려고 시도");
+
+//        // 빈 밭이 없는 상태에서 밭 심으려고 시도
+//        player.addResource("grain", 1);
+//        player.placeFamilyMember(plantSeed);
+//        player.resetResources();
+//
+//        assertTrue(!gameController.getMainBoard().isCardOccupied(plantSeed), "카드가 사용되지 말아야 함.");
+
+
+
+
     }
 }

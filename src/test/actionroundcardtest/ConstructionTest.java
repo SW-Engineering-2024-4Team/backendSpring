@@ -8,6 +8,7 @@ import enums.RoomType;
 import models.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import cards.factory.imp.action.PlowField;
 
 import java.util.*;
 
@@ -17,6 +18,7 @@ public class ConstructionTest {
     private GameController gameController;
     private Player player;
     private ActionRoundCard actionCard;
+    private ActionRoundCard plowField;
 
     @BeforeEach
     public void setUp() {
@@ -28,6 +30,7 @@ public class ConstructionTest {
 
         actionCard = new NonAccumulativeActionCard(1, "Construction Test Card", "This is a construction test card.");
         gameController.getMainBoard().getActionCards().add(actionCard);
+        plowField = new PlowField(2);
     }
 
     private List<Player> createMockPlayers() {
@@ -404,6 +407,25 @@ public class ConstructionTest {
             }
         }
         assertEquals(2, fieldCount, "There should be two fields plowed on the board.");
+    }
+
+    @Test
+    public void testPlowFieldWithPlowFieldCard() {
+
+        gameController.getMainBoard().addCard(plowField, "action");
+        Set<int[]> validPositions = player.getPlayerBoard().getValidPlowPositions();
+        printPlayerBoardWithFences("Player board before plowing field:", validPositions);
+
+        player.placeFamilyMember(plowField);
+
+        // 상태 출력
+        validPositions = player.getPlayerBoard().getValidPlowPositions();
+        printPlayerBoardWithFences("Player board after plowing first field:", validPositions);
+
+        player.placeFamilyMember(plowField);
+        assertTrue(gameController.getMainBoard().isCardOccupied(plowField));
+        gameController.resetFamilyMembers();
+        assertTrue(!gameController.getMainBoard().isCardOccupied(plowField));
     }
 
     // 집2,밭3, 외양간4을 랜덤하게 짓는 테스트 코드

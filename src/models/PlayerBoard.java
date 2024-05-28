@@ -1189,5 +1189,84 @@ public int calculateInitFenceCapacity() {
         }
     }
 
+    public void printPlayerBoardWithFences(String message, Set<int[]> validPositions) {
+        System.out.println(message);
+        Tile[][] tiles = getTiles();
+        boolean[][][] fences = getFences();
+        int rows = tiles.length;
+        int cols = tiles[0].length;
+        int cellWidth = 5; // 각 셀의 너비를 고정
+
+        // Print the top boundary of the board
+        for (int i = 0; i < rows; i++) {
+            // Print top fences
+            for (int j = 0; j < cols; j++) {
+                System.out.print("+");
+                if (fences[i][j][0]) {
+                    System.out.print("---");
+                } else {
+                    System.out.print("   ");
+                }
+            }
+            System.out.println("+");
+
+            // Print left fences and tiles
+            for (int j = 0; j < cols; j++) {
+                if (fences[i][j][2]) {
+                    System.out.print("|");
+                } else {
+                    System.out.print(" ");
+                }
+
+                boolean isValidPosition = false;
+                for (int[] pos : validPositions) {
+                    if (pos[0] == i && pos[1] == j) {
+                        isValidPosition = true;
+                        break;
+                    }
+                }
+
+                String tileString;
+                if (tiles[i][j] == null) {
+                    if (isValidPosition) {
+                        tileString = "*";
+                    } else {
+                        tileString = "";
+                    }
+                } else if (tiles[i][j] instanceof Room) {
+                    tileString = "r";
+                } else if (tiles[i][j] instanceof Barn) {
+                    tileString = "b";
+                } else if (tiles[i][j] instanceof FieldTile) {
+                    tileString = "f";
+                } else {
+                    tileString = "";
+                }
+                System.out.print(centerString(tileString, cellWidth));
+            }
+            if (fences[i][cols - 1][3]) {
+                System.out.print("|");
+            }
+            System.out.println();
+        }
+
+        // Print the bottom boundary of the board
+        for (int j = 0; j < cols; j++) {
+            System.out.print("+");
+            if (fences[rows - 1][j][1]) {
+                System.out.print("---");
+            } else {
+                System.out.print("   ");
+            }
+        }
+        System.out.println("+");
+    }
+
+    private String centerString(String str, int width) {
+        int paddingSize = (width - str.length()) / 2;
+        String padding = " ".repeat(paddingSize);
+        return padding + str + padding;
+    }
+
     // getter and setter methods
 }
