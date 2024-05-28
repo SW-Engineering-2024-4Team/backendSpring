@@ -13,6 +13,7 @@ import controllers.GameController;
 import controllers.RoomController;
 import enums.RoomType;
 import models.*;
+import cards.factory.imp.action.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -32,6 +33,9 @@ public class ResourceGainTest {
     private ActionRoundCard woodGatheringCard;
     private ActionRoundCard clayPitCard;
     private ActionRoundCard sheepMarket;
+    private ActionRoundCard resourceMarket;
+    private ActionRoundCard seed;
+    private ActionRoundCard worker;
 
     @BeforeEach
     public void setUp() {
@@ -52,6 +56,9 @@ public class ResourceGainTest {
         woodGatheringCard = new Bush(4);
         clayPitCard = new ClayMine(5);
         sheepMarket = new SheepMarket(6, 1);
+        resourceMarket = new ResourceMarket(7);
+        seed = new Seed(8);
+        worker = new Worker(9);
 
         // Initialize MainBoard
         MainBoard mainBoard = gameController.getMainBoard();
@@ -65,6 +72,9 @@ public class ResourceGainTest {
         mainBoard.getActionCards().add(woodGatheringCard);
         mainBoard.getActionCards().add(clayPitCard);
         mainBoard.getRoundCards().add(sheepMarket);
+        mainBoard.getRoundCards().add(resourceMarket);
+        mainBoard.getActionCards().add(seed);
+        mainBoard.getActionCards().add(worker);
 
         // Reassign cards to ensure we have the same references
 //        actionCard = mainBoard.getActionCards().stream().filter(card -> card.getId() == 1).findFirst().orElse(null);
@@ -362,6 +372,46 @@ public class ResourceGainTest {
         assertFalse(gameController.getMainBoard().isCardOccupied(clayPitCard));
 
         printPlayerResources(player, "Accumulated resources after card is occupied and reset:");
+    }
+
+    @Test
+    public void testResourceMarket() {
+        player.resetResources();
+        printPlayerResources(player, "Resources before testResourceMarket:");
+
+        // 자원 획득
+        player.placeFamilyMember(resourceMarket);
+        printPlayerResources(player, "Resources after testResourceMarket:");
+
+        assertEquals(1, player.getResource("stone"), "Player should have 1 stone.");
+        assertEquals(1, player.getResource("food"), "Player should have 1 food.");
+        assertTrue(resourceMarket.isOccupied(), "Card should be occupied after executing action card.");
+    }
+
+    @Test
+    public void testSeed() {
+        player.resetResources();
+        printPlayerResources(player, "Resources before testSeed:");
+
+        // 자원 획득
+        player.placeFamilyMember(seed);
+        printPlayerResources(player, "Resources after seed:");
+
+        assertEquals(1, player.getResource("grain"), "Player should have 1 grain.");
+        assertTrue(seed.isOccupied(), "Card should be occupied after executing action card.");
+    }
+
+    @Test
+    public void testWorker() {
+        player.resetResources();
+        printPlayerResources(player, "Resources before testWorker:");
+
+        // 자원 획득
+        player.placeFamilyMember(worker);
+        printPlayerResources(player, "Resources after Worker:");
+
+        assertEquals(2, player.getResource("food"), "Player should have 2 foods.");
+        assertTrue(worker.isOccupied(), "Card should be occupied after executing action card.");
     }
 
 
