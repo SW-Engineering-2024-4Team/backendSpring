@@ -3,14 +3,17 @@ package cards.common;
 import models.FamilyMember;
 import models.Player;
 
+import java.util.List;
 import java.util.Map;
 
 public interface CommonCard {
-    void execute(Player player);
 
     int getId();
     String getName();
     String getDescription();
+
+    // TODO 기능이 조합된 경우 플레이어의 선택을 어떻게 받아낼지
+    void execute(Player player);
 
     // 기능 조합 유틸리티 메서드
     default void executeAndOr(Player player, Runnable... actions) {

@@ -416,17 +416,6 @@ public class GameController {
         }
     }
 
-//    private void printAvailableCards() {
-//        System.out.println("Available cards:");
-//        List<ActionRoundCard> availableCards = new ArrayList<>();
-//        availableCards.addAll(mainBoard.getActionCards());
-//        availableCards.addAll(mainBoard.getRevealedRoundCards());
-//        availableCards.removeIf(card -> mainBoard.canPlaceFamilyMember(card));
-//
-//        for (ActionRoundCard card : availableCards) {
-//            System.out.println("  Card: " + card.getName());
-//        }
-//    }
 
     private void printFamilyMembersOnBoard() {
         System.out.println("Family members on board:");

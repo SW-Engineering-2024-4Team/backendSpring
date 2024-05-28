@@ -3,6 +3,7 @@ package models;
 import cards.common.AccumulativeCard;
 import cards.common.ActionRoundCard;
 import cards.common.CommonCard;
+//import cards.factory.imp.action.WanderingTheaterActionCard;
 import cards.majorimprovement.MajorImprovementCard;
 
 // MainBoard.java
@@ -50,17 +51,20 @@ public class MainBoard {
     public void accumulateResources() {
         for (ActionRoundCard card : actionCards) {
             if (card instanceof AccumulativeCard) {
+                System.out.println("card is accumulated " + card.getName());
                 ((AccumulativeCard) card).accumulateResources();
             }
         }
         for (ActionRoundCard card : roundCards) {
             if (card instanceof AccumulativeCard && card.isRevealed()) {
+                System.out.println("card is accumulated " + card.getName());
                 ((AccumulativeCard) card).accumulateResources();
             }
         }
     }
 
     public List<ActionRoundCard> getActionCards() {
+//        return new ArrayList<>(actionCards); // Ensure a new list is returned to avoid modification issues
         return actionCards;
     }
 
@@ -95,14 +99,6 @@ public class MainBoard {
         majorImprovementCards.remove(card);
     }
 
-//    public void placeFamilyMember(ActionRoundCard card, FamilyMember familyMember) {
-//        if (canPlaceFamilyMember(card)) {
-//            occupyingFamilyMembers.put(card, familyMember);
-//        } else {
-//            throw new IllegalStateException("Card is already occupied.");
-//        }
-//    }
-
     public boolean canPlaceFamilyMember(ActionRoundCard card) {
         return !card.isOccupied();
     }
@@ -127,7 +123,26 @@ public class MainBoard {
         }
     }
 
+    private static List<String> getCardNames(List<? extends CommonCard> cards) {
+        List<String> cardNames = new ArrayList<>();
+        for (CommonCard card : cards) {
+            cardNames.add(card.getName());
+        }
+        return cardNames;
+    }
 
+
+    public void addCard(CommonCard card, String type) {
+        if (type.equals("action") && card instanceof ActionRoundCard) {
+            actionCards.add((ActionRoundCard) card);
+        } else if (type.equals("round") && card instanceof ActionRoundCard) {
+            roundCards.add((ActionRoundCard) card);
+        } else if (type.equals("majorImprovement") && card instanceof CommonCard) {
+            majorImprovementCards.add(card);
+        } else {
+            throw new IllegalArgumentException("Invalid card type or card type mismatch.");
+        }
+    }
 
 }
 

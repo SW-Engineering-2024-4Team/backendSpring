@@ -16,8 +16,9 @@ public class AccumulativeRoundCard implements AccumulativeCard {
     private boolean revealed;
     private boolean occupied;
     private Map<String, Integer> accumulatedResources;
+    private Map<String, Integer> accumulatedAmounts;
 
-    public AccumulativeRoundCard(int id, String name, String description, int cycle) {
+    public AccumulativeRoundCard(int id, String name, String description, int cycle, Map<String, Integer> accumulatedAmounts) {
         this.id = id;
         this.name = name;
         this.description = description;
@@ -25,12 +26,14 @@ public class AccumulativeRoundCard implements AccumulativeCard {
         this.revealed = false;
         this.occupied = true;
         this.accumulatedResources = new HashMap<>();
+        this.accumulatedAmounts = new HashMap<>();
     }
 
     @Override
     public void execute(Player player) {
-        // 라운드 카드 실행 로직
-        System.out.println("executed");
+        // 누적된 자원을 플레이어에게 부여
+        gainResources(player, accumulatedResources);
+        accumulatedResources.clear();
     }
 
     @Override
@@ -76,6 +79,24 @@ public class AccumulativeRoundCard implements AccumulativeCard {
     public void clearAccumulatedResources() {
         accumulatedResources.clear();
     }
+
+    @Override
+    public void accumulateResources() {
+        if (!occupied) {
+            for (Map.Entry<String, Integer> entry : accumulatedAmounts.entrySet()) {
+                String resource = entry.getKey();
+                int amount = entry.getValue();
+                accumulatedResources.put(resource, accumulatedResources.getOrDefault(resource, 0) + amount);
+            }
+        }
+        if (occupied) {
+            for (String resource : accumulatedResources.keySet()) {
+                accumulatedResources.put(resource, accumulatedAmounts.getOrDefault(resource, 0));
+            }
+            setOccupied(false);
+        }
+    }
+
 
     @Override
     public boolean isOccupied() {

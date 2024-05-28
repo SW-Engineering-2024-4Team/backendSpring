@@ -750,6 +750,30 @@ private void exploreFenceArea(int x, int y, boolean[][] visited, FenceArea area)
     }
 
 
+    // 단독 외양간의 수용 능력을 계산하는 메서드
+    private int calculateStandaloneBarnCapacity() {
+        int capacity = 0;
+        for (int i = 0; i < tiles.length; i++) {
+            for (int j = 0; j < tiles[0].length; j++) {
+                if (tiles[i][j] instanceof Barn && !isFenceArea(i, j)) {
+                    capacity++;
+                }
+            }
+        }
+        return capacity;
+    }
+
+    // 집의 수용 능력을 계산하는 메서드
+    private int calculateHouseCapacity() {
+        for (int i = 0; i < tiles.length; i++) {
+            for (int j = 0; j < tiles[0].length; j++) {
+                if (tiles[i][j] instanceof Room) {
+                    return 1; // 집은 모두 합쳐서 한 마리만 수용 가능
+                }
+            }
+        }
+        return 0; // 집이 없으면 0
+    }
 
     // TODO 집, 외양간 추가 필요
     public int getAnimalCapacity() {
@@ -757,6 +781,12 @@ private void exploreFenceArea(int x, int y, boolean[][] visited, FenceArea area)
         for (FenceArea area : managedFenceAreas) {
             totalCapacity += area.getRemainingCapacity();
         }
+        // 단독 외양간의 수용 능력 추가
+        totalCapacity += calculateStandaloneBarnCapacity();
+
+        // 집의 수용 능력 추가
+        totalCapacity += calculateHouseCapacity();
+
         return totalCapacity;
     }
 
@@ -888,27 +918,77 @@ private void exploreFenceArea(int x, int y, boolean[][] visited, FenceArea area)
 //    }
 // 특정 위치에 동물을 배치할 수 있는지 확인하는 메서드
 // 특정 위치에 동물을 배치할 수 있는지 확인하는 메서드
-public boolean canPlaceAnimal(int x, int y, String animalType) {
-    if (tiles[x][y] instanceof Room) {
-        Room room = (Room) tiles[x][y];
-        return !room.hasAnimal();
-    } else if (tiles[x][y] instanceof Barn) {
-        Barn barn = (Barn) tiles[x][y];
-        if (isFenceArea(x, y)) {
+//public boolean canPlaceAnimal(int x, int y, String animalType) {
+//    if (tiles[x][y] instanceof Room) {
+//        Room room = (Room) tiles[x][y];
+//        return !room.hasAnimal();
+//    } else if (tiles[x][y] instanceof Barn) {
+//        Barn barn = (Barn) tiles[x][y];
+//        if (isFenceArea(x, y)) {
+//            FenceArea area = getFenceArea(x, y);
+//            int capacity = area.getRemainingCapacity();
+//            return area.isSingleAnimalType(animalType) && capacity > 0;
+//        } else {
+//            return !barn.hasAnimal();
+//        }
+//    } else if (isFenceArea(x, y)) {
+//        FenceArea area = getFenceArea(x, y);
+//        int capacity = area.getRemainingCapacity();
+//        return area.isSingleAnimalType(animalType) && capacity > 0;
+//    } else {
+//        return false;
+//    }
+//}
+
+    public boolean canPlaceAnimal(int x, int y, String animalType) {
+        if (tiles[x][y] instanceof Room) {
+            return canPlaceAnimalInHouse();
+        } else if (tiles[x][y] instanceof Barn) {
+            Barn barn = (Barn) tiles[x][y];
+            if (isFenceArea(x, y)) {
+                FenceArea area = getFenceArea(x, y);
+                int capacity = area.getRemainingCapacity();
+                return area.isSingleAnimalType(animalType) && capacity > 0;
+            } else {
+                return !barn.hasAnimal();
+            }
+        } else if (isFenceArea(x, y)) {
             FenceArea area = getFenceArea(x, y);
             int capacity = area.getRemainingCapacity();
             return area.isSingleAnimalType(animalType) && capacity > 0;
         } else {
-            return !barn.hasAnimal();
+            return false;
         }
-    } else if (isFenceArea(x, y)) {
-        FenceArea area = getFenceArea(x, y);
-        int capacity = area.getRemainingCapacity();
-        return area.isSingleAnimalType(animalType) && capacity > 0;
-    } else {
+    }
+
+    // 보드의 모든 집에 동물이 있는지 확인하는 메서드
+    private boolean canPlaceAnimalInHouse() {
+        for (int i = 0; i < tiles.length; i++) {
+            for (int j = 0; j < tiles[0].length; j++) {
+                if (tiles[i][j] instanceof Room) {
+                    Room room = (Room) tiles[i][j];
+                    if (!room.hasAnimal()) {
+                        return true;
+                    }
+                }
+            }
+        }
         return false;
     }
-}
+    // 보드의 모든 집에 동물이 있는지 확인하는 메서드
+    private boolean isAnyHouseContainingAnimal() {
+        for (int i = 0; i < tiles.length; i++) {
+            for (int j = 0; j < tiles[0].length; j++) {
+                if (tiles[i][j] instanceof Room) {
+                    Room room = (Room) tiles[i][j];
+                    if (room.hasAnimal()) {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
 
 
     // 보드에 동물을 추가하는 메서드

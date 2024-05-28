@@ -25,6 +25,7 @@ public class Player {
     private boolean firstFenceBuilt = false; // 최초 울타리 여부를 저장하는 변수
     private List<int[]> fenceCoordinates = new ArrayList<>(); // 울타리 설치할 좌표 리스트
     private FamilyMember[][] familyMembers;
+    private List<Effect> activeEffects;
 
     public Player(String id, String name, GameController gameController) {
         this.id = id;
@@ -39,6 +40,7 @@ public class Player {
         this.gameController = gameController;
         this.newFamilyMembers = new ArrayList<>();
         this.newAnimals = new ArrayList<>();
+        this.activeEffects = new ArrayList<>();
         initializeResources();
     }
 
@@ -50,6 +52,14 @@ public class Player {
         resources.put("food", 0);
         resources.put("beggingCard", 0);
         resources.put("sheep", 0);
+    }
+
+    public List<Effect> getActiveEffects() {
+        return activeEffects;
+    }
+
+    public void addActiveEffect(Effect effect) {
+        activeEffects.add(effect);
     }
 
     public void addCard(CommonCard card, String type) {
@@ -115,6 +125,30 @@ public class Player {
 //        System.out.println("No available family member found for player " + this.id);
 //    }
 
+//    public void placeFamilyMember(ActionRoundCard card) {
+//        if (!gameController.getMainBoard().canPlaceFamilyMember(card)) {
+//            System.out.println("Card " + card.getName() + " is already occupied.");
+//            return;
+//        }
+//
+//        FamilyMember[][] familyMembers = playerBoard.getFamilyMembers();
+//        for (int i = 0; i < familyMembers.length; i++) {
+//            for (int j = 0; j < familyMembers[i].length; j++) {
+//                if (familyMembers[i][j] != null && familyMembers[i][j].isAdult() && !familyMembers[i][j].isUsed()) {
+//                    FamilyMember selectedMember = familyMembers[i][j];
+//                    System.out.println("Placing family member at (" + i + ", " + j + ") for player " + this.id);
+//                    card.execute(this);
+//                    selectedMember.setUsed(true);
+//                    gameController.getMainBoard().placeFamilyMember(card);
+//                    System.out.println("Player " + this.id + " placed a family member on card: " + card.getName());
+//                    System.out.println("Family member used status: " + selectedMember.isUsed());
+//                    return;
+//                }
+//            }
+//        }
+//        System.out.println("No available family member found for player " + this.id);
+//    }
+
     public void placeFamilyMember(ActionRoundCard card) {
         if (!gameController.getMainBoard().canPlaceFamilyMember(card)) {
             System.out.println("Card " + card.getName() + " is already occupied.");
@@ -127,9 +161,9 @@ public class Player {
                 if (familyMembers[i][j] != null && familyMembers[i][j].isAdult() && !familyMembers[i][j].isUsed()) {
                     FamilyMember selectedMember = familyMembers[i][j];
                     System.out.println("Placing family member at (" + i + ", " + j + ") for player " + this.id);
-                    card.execute(this);
+                    gameController.getMainBoard().placeFamilyMember(card); // 점유 상태로 먼저 설정
+                    card.execute(this); // 카드 실행 로직
                     selectedMember.setUsed(true);
-                    gameController.getMainBoard().placeFamilyMember(card);
                     System.out.println("Player " + this.id + " placed a family member on card: " + card.getName());
                     System.out.println("Family member used status: " + selectedMember.isUsed());
                     return;
@@ -138,6 +172,7 @@ public class Player {
         }
         System.out.println("No available family member found for player " + this.id);
     }
+
 
     public void resetFamilyMembers() {
         FamilyMember[][] familyMembers = playerBoard.getFamilyMembers();
@@ -224,12 +259,11 @@ public class Player {
             majorImprovementCards.remove(card);
         } else if (card instanceof UnifiedCard) {
             occupationCards.remove(card);
-        } else if (card instanceof UnifiedCard) {
-            minorImprovementCards.remove(card);
+            minorImprovementCards.remove(card); // UnifiedCard는 occupationCards와 minorImprovementCards 둘 다에 있을 수 있습니다.
         }
-
         activeCards.add(card);
     }
+
 
     public List<ExchangeableCard> getExchangeableCards(ExchangeTiming timing) {
         List<ExchangeableCard> exchangeableCards = new ArrayList<>();
@@ -243,6 +277,7 @@ public class Player {
         }
         return exchangeableCards;
     }
+
 
     public void executeExchange(ExchangeableCard card, String fromResource, String toResource, int amount) {
         card.executeExchange(this, fromResource, toResource, amount);
@@ -500,5 +535,12 @@ public class Player {
 
     public String getName() {
         return name;
+    }
+
+    public void printPlayerResources(String message) {
+        System.out.println(message);
+        for (Map.Entry<String, Integer> resource : getResources().entrySet()) {
+            System.out.println("  " + resource.getKey() + ": " + resource.getValue());
+        }
     }
 }

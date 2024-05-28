@@ -8,7 +8,7 @@ import models.Player;
 import java.util.Map;
 import java.util.function.Predicate;
 
-public abstract class MinorImprovementCard implements UnifiedCard, ExchangeableCard {
+public class MinorImprovementCard implements UnifiedCard, ExchangeableCard {
     private int id;
     private String name;
     private String description;
@@ -67,7 +67,9 @@ public abstract class MinorImprovementCard implements UnifiedCard, ExchangeableC
     }
 
     @Override
-    public abstract void applyEffect(Player player);
+    public void applyEffect(Player player) {
+        // 구현 필요: 카드의 효과를 적용하는 로직
+    }
 
     @Override
     public boolean canExchange(ExchangeTiming timing) {

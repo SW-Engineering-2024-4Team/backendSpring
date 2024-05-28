@@ -9,6 +9,7 @@ import java.util.Map;
 
 public abstract class UnifiedDecorator implements AccumulativeCard {
     protected AccumulativeCard decoratedCard;
+    protected boolean occupied;
 
     public UnifiedDecorator(AccumulativeCard decoratedCard) {
         this.decoratedCard = decoratedCard;

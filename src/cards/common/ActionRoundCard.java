@@ -121,7 +121,6 @@ public interface ActionRoundCard extends CommonCard {
             System.out.println("기존 집 타입을 찾을 수 없습니다.");
             return;
         }
-
         if (playerBoard.canBuildHouse(x, y, currentRoomType, playerResources)) {
             Map<String, Integer> cost = player.getHouseResourceCost(currentRoomType);
             if (player.checkResources(cost)) {
@@ -195,6 +194,7 @@ public interface ActionRoundCard extends CommonCard {
             * 지을 좌표들을 모으기 위함.
             * */
 
+            // TODO 좌표 무더기로 들어오면 펜스 짓기로. 하나씩 선택은 프론트에서 하기로
             boolean fenceBuildingComplete = false;
             while (!fenceBuildingComplete) {
                 // TODO 플레이어 좌표 입력 로직 (여기서는 유효 위치 중 하나를 선택하는 것으로 가정)

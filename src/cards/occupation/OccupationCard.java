@@ -7,7 +7,7 @@ import models.Player;
 
 import java.util.Map;
 
-public abstract class OccupationCard implements UnifiedCard, ExchangeableCard {
+public class OccupationCard implements UnifiedCard, ExchangeableCard {
     private int id;
     private String name;
     private String description;
@@ -28,7 +28,6 @@ public abstract class OccupationCard implements UnifiedCard, ExchangeableCard {
 
     @Override
     public void execute(Player player) {
-
     }
 
     @Override
@@ -54,9 +53,6 @@ public abstract class OccupationCard implements UnifiedCard, ExchangeableCard {
             }
         }
     }
-
-    @Override
-    public abstract void applyEffect(Player player);
 
     @Override
     public boolean canExchange(ExchangeTiming timing) {
