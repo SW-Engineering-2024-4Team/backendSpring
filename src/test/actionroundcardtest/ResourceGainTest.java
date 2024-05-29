@@ -386,6 +386,10 @@ public class ResourceGainTest {
         assertEquals(1, player.getResource("stone"), "Player should have 1 stone.");
         assertEquals(1, player.getResource("food"), "Player should have 1 food.");
         assertTrue(resourceMarket.isOccupied(), "Card should be occupied after executing action card.");
+
+        gameController.resetFamilyMembers();
+        assertTrue(!resourceMarket.isOccupied());
+
     }
 
     @Test

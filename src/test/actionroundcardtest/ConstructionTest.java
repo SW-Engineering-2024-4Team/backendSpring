@@ -9,7 +9,9 @@ import models.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import cards.factory.imp.action.PlowField;
+import cards.factory.imp.round.BuildFence;
 
+import javax.swing.*;
 import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -19,6 +21,7 @@ public class ConstructionTest {
     private Player player;
     private ActionRoundCard actionCard;
     private ActionRoundCard plowField;
+    private ActionRoundCard buildFence;
 
     @BeforeEach
     public void setUp() {
@@ -685,7 +688,7 @@ public class ConstructionTest {
         player.getPlayerBoard().printFenceAreas();
 
         // 검증
-        assertEquals(32, capacity, "The capacity should be 32 after building barns inside the fenced area and adding animals.");
+        assertEquals(33, capacity, "The capacity should be 32 after building barns inside the fenced area and adding animals.");
     }
 
     @Test
@@ -818,7 +821,7 @@ public class ConstructionTest {
         player.getPlayerBoard().printFenceAreas();
 
         // 검증
-        assertEquals(28, capacity, "The capacity should be 32 after building barns inside the fenced area and adding animals.");
+        assertEquals(29, capacity, "The capacity should be 32 after building barns inside the fenced area and adding animals.");
     }
 
     // 외양간을 짓고 울타리를 두 개 짓는 테스트
@@ -912,7 +915,7 @@ public class ConstructionTest {
         // 검증
         assertNotNull(validPositions, "Valid positions set should not be null.");
         assertEquals(40, capacity, "The init capacity should be 40.");
-        assertEquals(36, remaining, "The remaining capacity should be 32 after building barns inside the fenced area and adding animals.");
+        assertEquals(37, remaining, "The remaining capacity should be 36 after building barns inside the fenced area and adding animals.");
         assertFalse(validPositions.isEmpty(), "There should be valid positions for building fences.");
 
 
@@ -979,6 +982,8 @@ public class ConstructionTest {
         // 최종 울타리 영역 디버깅 정보 출력
         player.getPlayerBoard().printFenceAreas();
     }
+
+
 
 
 

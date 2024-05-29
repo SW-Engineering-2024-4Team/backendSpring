@@ -65,8 +65,11 @@ public interface ActionRoundCard extends CommonCard {
 
     // 주요 설비 카드 구매
     default void purchaseMajorImprovementCard(Player player) {
+        System.out.println("purchaseMajorImprovemetnCard 속 cardList");
+
         GameController gameController = player.getGameController();
         MainBoard mainBoard = gameController.getMainBoard();
+        mainBoard.printCardLists();
         List<CommonCard> majorImprovementCards = mainBoard.getAvailableMajorImprovementCards();
 
         // TODO 플레이어가 카드를 선택하는 로직 (예시로 랜덤 선택)
@@ -97,6 +100,7 @@ public interface ActionRoundCard extends CommonCard {
             BakingCard selectedCard = player.selectBakingCard(bakingCards);
             selectedCard.triggerBreadBaking(player);
         } else {
+            System.out.println("사용 가능한 설비가 없습니다.");
             // 빵굽기 가능한 설비가 없다는 메시지 표시
         }
     }
@@ -186,6 +190,7 @@ public interface ActionRoundCard extends CommonCard {
     default void buildFence(Player player) {
         // 플레이어가 울타리를 지을 수 있는 유효한 좌표를 가져옴.
         Set<int[]> validPositions = player.getPlayerBoard().getValidFencePositions();
+        player.getPlayerBoard().printPlayerBoardWithFences("유효 좌표", validPositions);
 
         // 지을 수 있는 좌표가 없으면 짓지 못함.
         if (!validPositions.isEmpty()) {
@@ -217,6 +222,8 @@ public interface ActionRoundCard extends CommonCard {
             System.out.println("울타리를 지을 유효한 위치가 없습니다.");
         }
     }
+
+
 
     // 곡식 심기
     default void plantField(Player player) {

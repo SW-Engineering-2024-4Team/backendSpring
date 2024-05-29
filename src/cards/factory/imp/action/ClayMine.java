@@ -23,7 +23,7 @@ public class ClayMine extends AccumulativeActionCard {
         // 누적된 자원을 플레이어에게 부여
         gainResources(player, getAccumulatedResources());
         // 카드를 점유 상태로 설정
-        setOccupied(true);
+//        setOccupied(true);
         clearAccumulatedResources();
     }
 }

@@ -33,6 +33,15 @@ public class GameController {
         Collections.shuffle(this.turnOrder);
 
         initializeFirstFoods();
+        // Ensure all players reference the same GameController
+        for (Player player : players) {
+            player.setGameController(this);
+        }
+
+    }
+
+    public void setTurnOrder(List<Player> testTurnOrder) {
+        this.turnOrder = turnOrder;
     }
 
     // 다음 라운드의 턴 오더 설정
@@ -374,7 +383,9 @@ public class GameController {
         return players;
     }
 
+    // 추가된 디버깅 코드
     public void purchaseMajorImprovementCard(Player player, int cardId) {
+        System.out.println("Executing purchaseMajorImprovementCard for player: " + player.getName());
         List<CommonCard> majorImprovementCards = mainBoard.getMajorImprovementCards();
         MajorImprovementCard cardToPurchase = null;
 
@@ -392,8 +403,9 @@ public class GameController {
             if (cardToPurchase.hasImmediateBakingAction()) {
                 cardToPurchase.triggerBreadBaking(player);
             }
+            System.out.println(cardToPurchase.getName() + " 카드가 성공적으로 구매되었습니다.");
         } else {
-//            notifyPlayer(player, "자원이 부족하여 주요 설비 카드를 구매할 수 없습니다.");
+            System.out.println("자원이 부족하거나 카드가 존재하지 않아 구매할 수 없습니다.");
         }
     }
 
@@ -417,22 +429,37 @@ public class GameController {
     }
 
 
-    private void printFamilyMembersOnBoard() {
-        System.out.println("Family members on board:");
-        for (Player player : players) {
-            FamilyMember[][] familyMembers = player.getPlayerBoard().getFamilyMembers();
-            for (int i = 0; i < familyMembers.length; i++) {
-                for (int j = 0; j < familyMembers[i].length; j++) {
-                    if (familyMembers[i][j] != null && familyMembers[i][j].isUsed()) {
-                        FamilyMember member = familyMembers[i][j];
-                        System.out.println("  Player " + player.getId() + " - Family Member at (" + i + ", " + j + ") - Adult: " + member.isAdult());
-                    }
+//    private void printFamilyMembersOnBoard() {
+//        System.out.println("Family members on board:");
+//        for (Player player : players) {
+//            FamilyMember[][] familyMembers = player.getPlayerBoard().getFamilyMembers();
+//            for (int i = 0; i < familyMembers.length; i++) {
+//                for (int j = 0; j < familyMembers[i].length; j++) {
+//                    if (familyMembers[i][j] != null && familyMembers[i][j].isUsed()) {
+//                        FamilyMember member = familyMembers[i][j];
+//                        System.out.println("  Player " + player.getId() + " - Family Member at (" + i + ", " + j + ") - Adult: " + member.isAdult());
+//                    }
+//                }
+//            }
+//        }
+//    }
+private void printFamilyMembersOnBoard() {
+    System.out.println("Family members on board:");
+    for (Player player : players) {
+        FamilyMember[][] familyMembers = player.getPlayerBoard().getFamilyMembers();
+        for (int i = 0; i < familyMembers.length; i++) {
+            for (int j = 0; j < familyMembers[i].length; j++) {
+                if (familyMembers[i][j] != null && familyMembers[i][j].isUsed()) {
+                    FamilyMember member = familyMembers[i][j];
+                    System.out.println("  Player " + player.getId() + " - Family Member at (" + i + ", " + j + ") - Adult: " + member.isAdult());
                 }
             }
         }
     }
+}
 
     public void setMainBoard(MainBoard mainBoard) {
         this.mainBoard = mainBoard;
+        System.out.println("MainBoard set to: " + mainBoard);
     }
 }
