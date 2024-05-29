@@ -4,6 +4,8 @@ import cards.common.ActionRoundCard;
 import cards.common.BakingCard;
 import cards.common.CommonCard;
 import cards.common.ExchangeableCard;
+import cards.factory.imp.major.FurnitureWorkshop;
+import cards.factory.imp.major.PotteryWorkshop;
 import cards.majorimprovement.MajorImprovementCard;
 import enums.ExchangeTiming;
 import models.*;
@@ -66,6 +68,7 @@ public class GameController {
         }
     }
 
+    // TODO 보드 초기화 정보 보내주기: controllertest.GameRoundTest.java 형식
     public void initializeGame() {
         setupPlayers();
         setupMainBoard();
@@ -98,6 +101,7 @@ public class GameController {
         mainBoard.initializeBoard(actionCards, roundCycles, majorImprovementCards);
     }
 
+    // TODO
     public void startGame() {
         while (currentRound <= 14) {
             System.out.println("-------------------------------------------------------------------------------");
@@ -136,10 +140,17 @@ public class GameController {
         endGame();
     }
 
+    /*
+    * 1. 라운드 정보
+    * // TODO 2. 어떤 카드가 자원이 누적되었는지(얼마나): accumulativeaction(round)card 클래스의 getAcuumulativeResources()
+    * 3. 어떤 플레이어가 아무때나 교환 가능한 카드를 갖고 있는지
+    * 4. 턴 오버 정보: 턴 오더가 바뀔 때
+    * */
     public void prepareRound() {
         System.out.println("Preparing round " + currentRound);
         mainBoard.revealRoundCard(currentRound);
         mainBoard.accumulateResources();
+        // 2. 컨트롤러에서 메인보드한테 누적 자원인 카드들의 자원 정보를 가져오면 해결
         for (Player player : players) {
             List<ExchangeableCard> exchangeableCards = player.getExchangeableCards(ExchangeTiming.ANYTIME);
             // TODO 프론트엔드에 교환 가능 카드 목록 제공 로직 필요
@@ -150,13 +161,25 @@ public class GameController {
         }
     }
 
+    /*
+    1. 어떤 카드가 점유되었는지; 프론트에서 어떤 카드에 가족을 올려놓을 수 있는지 알아야 됨.
+    2. 어떤 플레이어가 가족 구성원 올려놓아야 하는지
+
+    * */
     public void playRound() {
+        for (Player player : players) {
+            List<ExchangeableCard> anytimeCards = player.getExchangeableCards(ExchangeTiming.ANYTIME);
+            // TODO 프론트엔드에 교환 가능 카드 목록 제공 로직 필요
+        }
+
         System.out.println("Playing round " + currentRound);
         boolean roundFinished = false;
         while (!roundFinished) {
             roundFinished = true;
             for (Player player : turnOrder) {
+                // 성인, 신생아 구별해서 사용 가능한 가족 구성원이 있으면 플레이어에게 턴을 줌.
                 if (player.hasAvailableFamilyMembers()) {
+
                     List<ActionRoundCard> availableCards = new ArrayList<>();
                     availableCards.addAll(mainBoard.getActionCards());
                     availableCards.addAll(mainBoard.getRevealedRoundCards());
@@ -177,6 +200,11 @@ public class GameController {
         resetFamilyMembers();
     }
 
+    /*
+    프론트가 카드 명을 줄 텐데
+    카드 명을 selectedCard에 담아서
+    player.placeFamilyMember(selectedCard);
+    * */
     private void playerTurn(String playerID) {
         Player player = getPlayerByID(playerID);
 
@@ -194,6 +222,8 @@ public class GameController {
             if (!availableCards.isEmpty()) {
                 Random rand = new Random();
                 ActionRoundCard selectedCard = availableCards.get(rand.nextInt(availableCards.size()));
+
+                // 여기서 액션카드, 라운드 카드의 효과를 발동
                 player.placeFamilyMember(selectedCard);
 
                 System.out.println("Available cards after selection:");
@@ -252,6 +282,14 @@ public class GameController {
 
     private void feedFamilyPhase() {
         for (Player player : players) {
+            List<ExchangeableCard> exchangeableCards = new ArrayList<>();
+            exchangeableCards.addAll(player.getExchangeableCards(ExchangeTiming.ANYTIME));
+            exchangeableCards.addAll(player.getExchangeableCards(ExchangeTiming.HARVEST));
+            // TODO 프론트엔드에 교환 가능 카드 목록 제공 로직 필요
+        }
+
+
+        for (Player player : players) {
             int foodNeeded = calculateFoodNeeded(player);
             if (player.getResource("food") >= foodNeeded) {
                 player.addResource("food", -foodNeeded);
@@ -283,6 +321,13 @@ public class GameController {
 
     // 동물 번식 단계를 구현
     private void breedAnimalsPhase() {
+        for (Player player : players) {
+            List<ExchangeableCard> exchangeableCards = new ArrayList<>();
+            exchangeableCards.addAll(player.getExchangeableCards(ExchangeTiming.ANYTIME));
+            exchangeableCards.addAll(player.getExchangeableCards(ExchangeTiming.HARVEST));
+            // TODO 프론트엔드에 교환 가능 카드 목록 제공 로직 필요
+        }
+
         for (Player player : players) {
             List<Animal> newAnimals = player.getPlayerBoard().breedAnimals();
             for (Animal animal : newAnimals) {
@@ -330,7 +375,18 @@ public class GameController {
     }
 
     private int calculateScoreForPlayer(Player player) {
-        return 0;
+        int score = 0;
+
+        // 주요 설비 카드에 따른 추가 점수 계산
+        for (CommonCard card : player.getMajorImprovementCards()) {
+            if (card instanceof PotteryWorkshop) {
+                score += ((PotteryWorkshop) card).calculateAdditionalPoints(player);
+            } else if (card instanceof FurnitureWorkshop) {
+                score += ((FurnitureWorkshop) card).calculateAdditionalPoints(player);
+            }
+        }
+
+        return score;
     }
 
     private List<Map<String, Object>> getScores() {

@@ -13,14 +13,6 @@ public class PlantSeed extends NonAccumulativeRoundCard {
         super(id, "곡식 활용", "씨 뿌리기 그리고/또는 빵 굽기", cycle);
     }
 
-//    private static Map<String, Integer> neededResources() {
-//        Map<String, Integer> neededResources = new HashMap<>();
-//        neededResources.put("grain", 1);
-//
-//        return neededResources;
-//    }
-
-
     @Override
     public void execute(Player player) {
         // 씨 뿌리기 그리고/또는 빵굽기

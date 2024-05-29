@@ -102,6 +102,8 @@ public interface CommonCard {
             player.addResource(entry.getKey(), -entry.getValue());
         }
     }
+
+
 }
 
 //package cards.common;

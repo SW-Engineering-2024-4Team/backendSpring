@@ -21,6 +21,14 @@ public interface ActionRoundCard extends CommonCard {
             String resource = entry.getKey();
             int amount = entry.getValue();
 
+            // TODO 양 자원
+            // 보드 외부에 먼저 배치가 됨.
+            // 몇 마리 배치해야 하는지
+            // 빈 공간을 알려주시고
+            // 프론트가 어떤 좌표에 플레이어가 배치하고 싶어함.
+            // 플레이어가 어떤 좌표에 동물 배치했는지 알려주시고(배치 할 수 있는지 없는지)
+            // 배치를 못하는 경우
+
             if (resource.equals("sheep")) {
                 System.out.println("양 자원 시작");
                 // 양 자원일 경우
@@ -41,6 +49,11 @@ public interface ActionRoundCard extends CommonCard {
     }
 
 
+    /*
+    * 프론트에게 사용 가능한 카드 목록 보여줌
+    * 프론트가 구매한 카드명 보여줌
+    * 구매했다는 걸 프론트에게 알려줌
+    * */
     // 직업 카드 사용
     default void useOccupationCard(Player player) {
         // 직업 카드 사용 로직
@@ -88,6 +101,10 @@ public interface ActionRoundCard extends CommonCard {
         }
 
     }
+
+    /*
+    *
+    * */
     default void triggerBreadBaking(Player player) {
         List<CommonCard> majorImprovementCards = player.getMajorImprovementCards();
         List<BakingCard> bakingCards = majorImprovementCards.stream()
@@ -106,6 +123,14 @@ public interface ActionRoundCard extends CommonCard {
     }
 
     // 기물 짓기
+
+
+    /*
+    * 집, 외양간, 밭
+    * 한번에 기물만 생성
+    *
+    * 1. 프론트에게 선택 가능한 좌표를 보여주고
+    * 2. 프론트가 좌표를 선택하면*/
 
     // 집 짓기
     default void buildHouse(Player player) {
@@ -187,6 +212,9 @@ public interface ActionRoundCard extends CommonCard {
     }
 
     // 울타리 짓기
+    // 프론트에게 좌표 요청
+    // 프론트가 좌표 set (1,1)(1,2)(1,3)
+    // 그거 갖고 울타리 지으면 됨
     default void buildFence(Player player) {
         // 플레이어가 울타리를 지을 수 있는 유효한 좌표를 가져옴.
         Set<int[]> validPositions = player.getPlayerBoard().getValidFencePositions();
@@ -225,7 +253,7 @@ public interface ActionRoundCard extends CommonCard {
 
 
 
-    // 곡식 심기
+    // 곡식 심기 // 집, 외양간, 밭과 유사
     default void plantField(Player player) {
         PlayerBoard playerBoard = player.getPlayerBoard();
 

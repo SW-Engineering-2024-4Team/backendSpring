@@ -1760,6 +1760,7 @@ import java.util.*;
 //    }
 //}
 
+            // 플레이어가 개인 보드에 동물을 배치할 수 있는지 확인해주는 메서드
             public boolean canPlaceAnimal(int x, int y, String animalType) {
                 if (tiles[x][y] instanceof Room) {
                     return canPlaceAnimalInHouse();

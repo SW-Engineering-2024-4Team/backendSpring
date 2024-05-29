@@ -741,11 +741,17 @@ public class Player {
         this.score = score;
     }
 
+
     public void placeFamilyMember(ActionRoundCard card) {
+        // 카드에 올려놓을 수 있는지(점유가 됐는지 확인)
         if (!gameController.getMainBoard().canPlaceFamilyMember(card)) {
             System.out.println("Card " + card.getName() + " is already occupied.");
             return;
         }
+
+        // 이 부분이 카드 효과를 발동
+        // TODO: 프론트가 가족 구성원의 좌표, 카드명주면
+        // 가족 구성원 사용됨, 카드 점유, 카드 실행
 
         FamilyMember[][] familyMembers = playerBoard.getFamilyMembers();
         for (int i = 0; i < familyMembers.length; i++) {
@@ -753,9 +759,16 @@ public class Player {
                 if (familyMembers[i][j] != null && familyMembers[i][j].isAdult() && !familyMembers[i][j].isUsed()) {
                     FamilyMember selectedMember = familyMembers[i][j];
                     System.out.println("Placing family member at (" + i + ", " + j + ") for player " + this.id);
+
+                    // 카드가 사용되면 점유상태가 되어 있어야 함.
                     gameController.getMainBoard().placeFamilyMember(card); // 점유 상태로 먼저 설정
+
+                    // 카드 효과를 발동
                     card.execute(this); // 카드 실행 로직
-                    selectedMember.setUsed(true);
+
+                    // 가족 구성원이 사용되었음 표시
+                    selectedMember.setUsed(true); //hasFamilyMember()
+
                     System.out.println("Player " + this.id + " placed a family member on card: " + card.getName());
                     System.out.println("Family member used status: " + selectedMember.isUsed());
                     return;
@@ -835,10 +848,10 @@ public class Player {
 
     public List<ExchangeableCard> getExchangeableCards(ExchangeTiming timing) {
         List<ExchangeableCard> exchangeableCards = new ArrayList<>();
-        for (CommonCard card : activeCards) {
+        for (CommonCard card : majorImprovementCards) {
             if (card instanceof ExchangeableCard) {
                 ExchangeableCard exchangeableCard = (ExchangeableCard) card;
-                if (exchangeableCard.canExchange(timing) || exchangeableCard.canExchange(ExchangeTiming.ANYTIME)) {
+                if (exchangeableCard.canExchange(timing)) {
                     exchangeableCards.add(exchangeableCard);
                 }
             }
@@ -978,6 +991,8 @@ public class Player {
         List<Animal> animalsToRemove = new ArrayList<>();
         Iterator<Animal> iterator = newAnimals.iterator();
 
+        // TODO 임의로 좌표를 설정한 것
+        // 더 배치할 수 없을 경우: 방생
         while (iterator.hasNext()) {
             Animal animal = iterator.next();
             Set<int[]> validPositions = playerBoard.getValidAnimalPositions(animal.getType());
@@ -985,6 +1000,8 @@ public class Player {
             if (!validPositions.isEmpty()) {
                 int[] position = validPositions.iterator().next();
                 System.out.println("동물 배치 위치: (" + position[0] + ", " + position[1] + ")");
+
+                // TODO 프론트한테 좌표 받아서 배치
                 placeAnimalOnBoard(animal, position[0], position[1]);
                 placedCount++;
                 animalsToRemove.add(animal);
