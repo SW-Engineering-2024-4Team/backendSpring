@@ -8,6 +8,7 @@ import cards.factory.imp.major.FurnitureWorkshop;
 import cards.factory.imp.major.PotteryWorkshop;
 import cards.majorimprovement.MajorImprovementCard;
 import enums.ExchangeTiming;
+import enums.RoomType;
 import models.*;
 
 import java.util.*;
@@ -335,7 +336,6 @@ public class GameController {
                     System.out.println(animal.getType() + " 방생됨.");
                 }
             }
-            List<ExchangeableCard> exchangeableCards = player.getExchangeableCards(ExchangeTiming.HARVEST);
         }
 //        notifyPlayers("가축 번식 단계 완료. 수확 단계 종료.");
         System.out.println("Breed animals phase completed.");
@@ -376,6 +376,54 @@ public class GameController {
 
     private int calculateScoreForPlayer(Player player) {
         int score = 0;
+        int emptyTiles = 0;
+        int woodenRooms = 0;
+        int stoneRooms = 0;
+        int familyMembersCount = 0;
+
+        PlayerBoard playerBoard = player.getPlayerBoard();
+
+        // 빈 타일, 집의 종류, 가족 구성원 수 계산
+        Tile[][] tiles = playerBoard.getTiles();
+        for (int i = 0; i < tiles.length; i++) {
+            for (int j = 0; j < tiles[0].length; j++) {
+                if (tiles[i][j] == null) {
+                    emptyTiles++;
+                } else if (tiles[i][j] instanceof Room) {
+                    Room room = (Room) tiles[i][j];
+                    if (room.getType() == RoomType.WOOD) {
+                        woodenRooms++;
+                    } else if (room.getType() == RoomType.STONE) {
+                        stoneRooms++;
+                    }
+                }
+                FamilyMember[][] familyMembers = playerBoard.getFamilyMembers();
+                if (familyMembers[i][j] != null) {
+                    familyMembersCount++;
+                }
+            }
+        }
+
+        // 빈 타일 개수에 따른 점수 계산
+        score -= emptyTiles;
+
+        // 울타리 안에 외양간이 있는 경우 칸당 1점
+        Set<FenceArea> managedFenceAreas = playerBoard.getManagedFenceAreas();
+        for (FenceArea area : managedFenceAreas) {
+            if (area.hasBarn()) {
+                score += area.getTileCount();
+            }
+        }
+
+        // 흙집 방 1개당 1점
+        score += woodenRooms;
+
+        // 돌집 방 1개당 2점
+        score += stoneRooms * 2;
+
+        // 가족 1명당 3점
+        score += familyMembersCount * 3;
+
 
         // 주요 설비 카드에 따른 추가 점수 계산
         for (CommonCard card : player.getMajorImprovementCards()) {
@@ -386,7 +434,49 @@ public class GameController {
             }
         }
 
+
+        score += calculateBeggingPoints(player);
+        score += calculateGrainPoints(player);
+        score += calculateSheepPoints(player);
+
         return score;
+    }
+
+    private int calculateBeggingPoints(Player player) {
+        int beggingCard = player.getResource("beggingCard");
+        return -3 * beggingCard;
+    }
+
+    private int calculateGrainPoints(Player player) {
+        int grains = player.getResource("grain");
+        if (grains == 0) {
+            return -1;
+        } else if (grains <= 3) {
+            return 1;
+        } else if (grains <= 6) {
+            return 2;
+        } else if (grains <= 7) {
+            return 3;
+        } else if (grains >= 8) {
+            return 4;
+        }
+        return 0;
+    }
+
+    private int calculateSheepPoints(Player player) {
+        int sheep = player.getResource("sheep");
+        if (sheep == 0) {
+            return -1;
+        } else if (sheep <= 3) {
+            return 1;
+        } else if (sheep <= 5) {
+            return 2;
+        } else if (sheep <= 7) {
+            return 3;
+        } else if (sheep >= 8) {
+            return 4;
+        }
+        return 0;
     }
 
     private List<Map<String, Object>> getScores() {

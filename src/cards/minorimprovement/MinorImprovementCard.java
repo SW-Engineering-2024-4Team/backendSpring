@@ -16,8 +16,10 @@ public class MinorImprovementCard implements UnifiedCard, ExchangeableCard {
     private Map<String, Integer> gainResources;
     private Map<String, Integer> cost;
     private Predicate<Player> condition;
+    private ExchangeTiming exchangeTiming;
+    private int bonusPoints;
 
-    public MinorImprovementCard(int id, String name, String description, Map<String, Integer> exchangeRate, Map<String, Integer> gainResources, Map<String, Integer> cost, Predicate<Player> condition) {
+    public MinorImprovementCard(int id, String name, String description, Map<String, Integer> exchangeRate, Map<String, Integer> gainResources, Map<String, Integer> cost, Predicate<Player> condition, ExchangeTiming exchangeTiming, int bonusPoints) {
         this.id = id;
         this.name = name;
         this.description = description;
@@ -25,6 +27,8 @@ public class MinorImprovementCard implements UnifiedCard, ExchangeableCard {
         this.gainResources = gainResources;
         this.cost = cost;
         this.condition = condition;
+        this.exchangeTiming = exchangeTiming;
+        this.bonusPoints = bonusPoints;
     }
 
     @Override
@@ -73,12 +77,12 @@ public class MinorImprovementCard implements UnifiedCard, ExchangeableCard {
 
     @Override
     public boolean canExchange(ExchangeTiming timing) {
-        return exchangeRate != null;
+        return exchangeRate != null && this.exchangeTiming == timing;
     }
 
     @Override
     public void executeExchange(Player player, String fromResource, String toResource, int amount) {
-        if (exchangeRate != null) {
+        if (canExchange(exchangeTiming)) {
             int exchangeAmount = exchangeRate.get(toResource) * amount / exchangeRate.get(fromResource);
             player.addResource(fromResource, -amount);
             player.addResource(toResource, exchangeAmount);
@@ -92,5 +96,9 @@ public class MinorImprovementCard implements UnifiedCard, ExchangeableCard {
 
     public boolean testCondition(Player player) {
         return condition == null || condition.test(player);
+    }
+
+    public int getBonusPoints() {
+        return bonusPoints;
     }
 }

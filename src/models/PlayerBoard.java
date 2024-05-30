@@ -1610,6 +1610,8 @@ import java.util.*;
                 return totalCapacity;
             }
 
+
+
             // 밭 위치 확인 메서드
             public Set<int[]> getValidFieldPositions() {
                 Set<int[]> validPositions = new HashSet<>();

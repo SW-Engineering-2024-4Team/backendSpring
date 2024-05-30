@@ -189,4 +189,13 @@ public class FenceArea {
         System.out.println("Remaining Capacity: " + getRemainingCapacity());
     }
 
+    // 새로 추가된 메서드들
+    public boolean hasBarn() {
+        return !barns.isEmpty();
+    }
+
+    public int getTileCount() {
+        return tiles.size();
+    }
+
 }

@@ -15,8 +15,9 @@ public class OccupationCard implements UnifiedCard, ExchangeableCard {
     private Map<String, Integer> gainResources;
     private int minPlayer; // 최소 플레이어 수
     private int maxPlayer; // 최대 플레이어 수
+    private ExchangeTiming exchangeTiming;
 
-    public OccupationCard(int id, String name, String description, Map<String, Integer> exchangeRate, Map<String, Integer> gainResources, int minPlayer, int maxPlayer) {
+    public OccupationCard(int id, String name, String description, Map<String, Integer> exchangeRate, Map<String, Integer> gainResources, int minPlayer, int maxPlayer, ExchangeTiming exchangeTiming) {
         this.id = id;
         this.name = name;
         this.description = description;
@@ -24,6 +25,7 @@ public class OccupationCard implements UnifiedCard, ExchangeableCard {
         this.gainResources = gainResources;
         this.minPlayer = minPlayer;
         this.maxPlayer = maxPlayer;
+        this.exchangeTiming = exchangeTiming;
     }
 
     @Override
