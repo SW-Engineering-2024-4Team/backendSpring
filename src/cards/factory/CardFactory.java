@@ -11,6 +11,7 @@ import cards.minorimprovement.TestMinorImprovementCard;
 import cards.occupation.TestOccupationCard;
 import cards.round.AccumulativeRoundCard;
 import cards.round.NonAccumulativeRoundCard;
+import enums.ExchangeTiming;
 
 import java.util.HashMap;
 import java.util.List;
@@ -59,7 +60,7 @@ public class CardFactory {
         }
 
         for (int i = 0; i < 5; i++) {
-            majorImprovementCards.add(new MajorImprovementCard(i, "Major Improvement Card " + (i + 1), "Description of Major Improvement Card " + (i + 1), new HashMap<>(), new HashMap<>(), new HashMap<>(), 1, false));
+            majorImprovementCards.add(new MajorImprovementCard(i, "Major Improvement Card " + (i + 1), "Description of Major Improvement Card " + (i + 1), new HashMap<>(), new HashMap<>(), new HashMap<>(), 1, false, ExchangeTiming.ANYTIME));
         }
     }
 }
