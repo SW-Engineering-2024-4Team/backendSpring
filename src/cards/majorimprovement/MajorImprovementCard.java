@@ -126,4 +126,8 @@ public class MajorImprovementCard implements CommonCard, ExchangeableCard, Bakin
             }
         }
     }
+
+    public void setPurchaseCost(Map<String, Integer> purchaseCost) {
+        this.purchaseCost = purchaseCost;
+    }
 }

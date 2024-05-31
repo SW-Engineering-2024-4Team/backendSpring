@@ -14,7 +14,7 @@ public class MinorImprovementCard implements UnifiedCard, ExchangeableCard {
     private String description;
     private Map<String, Integer> exchangeRate;
     private Map<String, Integer> gainResources;
-    private Map<String, Integer> cost;
+    protected Map<String, Integer> cost;
     private Predicate<Player> condition;
     private ExchangeTiming exchangeTiming;
     private int bonusPoints;

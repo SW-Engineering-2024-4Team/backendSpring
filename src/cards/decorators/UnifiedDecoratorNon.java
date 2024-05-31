@@ -1,28 +1,23 @@
 package cards.decorators;
 
 import cards.common.AccumulativeCard;
-import cards.factory.imp.action.Seed;
+import cards.common.ActionRoundCard;
 import models.Player;
 import java.util.Map;
 
-public abstract class UnifiedDecorator implements AccumulativeCard {
-    protected AccumulativeCard decoratedCard;
+public abstract class UnifiedDecoratorNon implements ActionRoundCard {
+    protected ActionRoundCard decoratedCard;
     protected boolean occupied;
     protected Player appliedPlayer;
 
 
-    public UnifiedDecorator(AccumulativeCard decoratedCard, Player appliedPlayer) {
+    public UnifiedDecoratorNon(ActionRoundCard decoratedCard, Player appliedPlayer) {
         if (decoratedCard == null) {
             throw new IllegalArgumentException("Decorated card cannot be null");
         }
         this.decoratedCard = decoratedCard;
         this.occupied = decoratedCard.isOccupied();
         this.appliedPlayer = appliedPlayer;
-    }
-
-    @Override
-    public Map<String , Integer> getAccumulatedAmounts() {
-        return decoratedCard.getAccumulatedAmounts();
     }
 
     @Override
@@ -68,21 +63,6 @@ public abstract class UnifiedDecorator implements AccumulativeCard {
     @Override
     public boolean isAccumulative() {
         return decoratedCard.isAccumulative();
-    }
-
-    @Override
-    public Map<String, Integer> getAccumulatedResources() {
-        return decoratedCard.getAccumulatedResources();
-    }
-
-    @Override
-    public void clearAccumulatedResources() {
-        decoratedCard.clearAccumulatedResources();
-    }
-
-    @Override
-    public void accumulateResources() {
-        decoratedCard.accumulateResources();
     }
 
     @Override
@@ -173,11 +153,4 @@ public abstract class UnifiedDecorator implements AccumulativeCard {
     public void executeAndOr(Player player, Runnable action1, Runnable action2) {
         decoratedCard.executeAndOr(player, action1, action2);
     }
-
-//    public Map<String, Integer> getResourcesToGain() {
-//        if (decoratedCard instanceof Seed) {
-//            return ((Seed) decoratedCard).createResourcesToGain();
-//        }
-//        return null;
-//    }
 }
