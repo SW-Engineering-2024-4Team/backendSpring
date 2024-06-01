@@ -101,4 +101,12 @@ public class MinorImprovementCard implements UnifiedCard, ExchangeableCard {
     public int getBonusPoints() {
         return bonusPoints;
     }
+
+    public Map<String, Integer> getPurchaseCost() {
+        return cost;
+    }
+
+    public void setPurchaseCost(Map<String, Integer> cost) {
+        this.cost = cost;
+    }
 }

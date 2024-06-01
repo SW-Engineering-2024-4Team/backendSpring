@@ -1186,5 +1186,34 @@ public class Player {
     public void setChooseOption(boolean chooseOption) {
         this.chooseOption = chooseOption;
     }
+
+    private boolean woodDiscountActive = false;
+    public boolean isWoodDiscountActive() {
+        return woodDiscountActive;
+    }
+
+    public void setWoodDiscountActive(boolean woodDiscountActive) {
+        this.woodDiscountActive = woodDiscountActive;
+    }
+
+    public Map<String, Integer> getDiscountedCost(Map<String, Integer> originalCost) {
+        if (!woodDiscountActive) return originalCost;
+
+        Map<String, Integer> discountedCost = new HashMap<>(originalCost);
+        if (discountedCost.containsKey("wood")) {
+            discountedCost.put("wood", Math.max(0, discountedCost.get("wood") - 1));
+        }
+        if (discountedCost.containsKey("stone")) {
+            discountedCost.put("stone", Math.max(0, discountedCost.get("stone") - stoneDiscount));
+        }
+        return discountedCost;
+    }
+
+    private int stoneDiscount = 0;
+
+    public void setStoneDiscount(int discount) {
+        this.stoneDiscount = discount;
+    }
+
 }
 

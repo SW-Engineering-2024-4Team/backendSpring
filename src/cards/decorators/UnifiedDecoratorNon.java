@@ -153,4 +153,5 @@ public abstract class UnifiedDecoratorNon implements ActionRoundCard {
     public void executeAndOr(Player player, Runnable action1, Runnable action2) {
         decoratedCard.executeAndOr(player, action1, action2);
     }
+
 }

@@ -2108,5 +2108,11 @@ import java.util.*;
                 return Math.max(0, currentRooms - initialRooms);
             }
 
+            public void applyWaterTroughEffect(Player player) {
+                for (FenceArea area : managedFenceAreas) {
+                    area.addWaterTrough(player);
+                }
+            }
+
             // getter and setter methods
         }
