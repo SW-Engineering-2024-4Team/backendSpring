@@ -1,16 +1,12 @@
 package com.example.agricola.message;
 
-import java.util.List;
-
-public class GameActionBoardMessage {
+public class GameRoundBoardMessage {
     private String message;
     private int[] clickedActionCards;
-    private int[] resourceActionCards;
 
-    public GameActionBoardMessage(String message, int[] clickedActionCards, int[] resourceActionCards) {
+    public GameRoundBoardMessage(String message, int[] clickedActionCards) {
         this.message = message;
         this.clickedActionCards = clickedActionCards;
-        this.resourceActionCards = resourceActionCards;
     }
 
     // Getters and setters
@@ -28,13 +24,5 @@ public class GameActionBoardMessage {
 
     public void setClickedActionCards(int[] clickedActionCards) {
         this.clickedActionCards = clickedActionCards;
-    }
-
-    public int[] getResourceActionCards() {
-        return resourceActionCards;
-    }
-
-    public void setResourceActionCards(int[] resourceActionCards) {
-        this.resourceActionCards = resourceActionCards;
     }
 }
