@@ -16,12 +16,13 @@ public class GameController {
 
     @MessageMapping("/room/{roomId}/start")
     @SendTo("/topic/room/{roomId}")
-    public GameInitialMessage gameStart(@DestinationVariable String roomId) {
+    public GameInitialMessage gameStart(String message, @DestinationVariable String roomId) {
         // 플레이어 목록 초기화
         players = initializePlayers();
 
         // Here, add any logic you need to initialize the game state.
         System.out.println("Game started in room " + roomId);
+        System.out.println(message);
 
         return new GameInitialMessage("Game has started in room " + roomId + "!", players);
     }
