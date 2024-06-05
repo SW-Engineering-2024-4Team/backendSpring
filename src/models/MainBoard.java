@@ -191,10 +191,14 @@ package models;
 import cards.common.AccumulativeCard;
 import cards.common.ActionRoundCard;
 import cards.common.CommonCard;
+import cards.common.ExchangeableCard;
 import cards.factory.imp.occupation.Lumberjack;
 import cards.factory.imp.occupation.Lumberjack;
 import cards.majorimprovement.MajorImprovementCard;
+import cards.minorimprovement.MinorImprovementCard;
+import enums.ExchangeTiming;
 
+import java.lang.reflect.Array;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -369,5 +373,145 @@ public class MainBoard {
             }
         }
     }
+    /**
+     메인보드위의 카드 ID정보를 ArrayList<String>으로 보내줌.
+     라운드 카드가 보일시 "id" 라운드 카드가 아직 보여지지 않는 카드일시 "x"+"id"
+     ex) ["1", "2", "3", "4", "12", "52", "x9", "x5" ...]
+     **/
+    public ArrayList<String> sendMainBoardCardInfo(MainBoard mainBoard) {
+        ArrayList <String> sendToFront = new ArrayList<String>();
+        List<ActionRoundCard> actionCards = mainBoard.getActionCards();
+        for (ActionRoundCard card : actionCards) {
+            String playerInfo = String.valueOf(card.getId());
+            if (card.isRevealed()) {
+                playerInfo = "x" + playerInfo;
+            }
+            sendToFront.add(playerInfo);
+        }
+        //라운드카드
+        List<ActionRoundCard> roundCards = mainBoard.getRoundCards();
+        for (ActionRoundCard card : roundCards) {
+            String playerInfo = String.valueOf(card.getId());
+            if (card.isRevealed()) {
+                playerInfo = "x" + playerInfo;
+            }
+            sendToFront.add(playerInfo);
+        }
+        return sendToFront;
+        //카드마다 플레이어가 놓을수있는지없는지 전달.
+    }
+    /**
+     메인보드위의 플레이어들 ID정보를 ArrayList<String>으로 보내줌 플레이어가 점유중일시 "id", 그렇지 않을시 "null"
+     ex) ["1", "null", "4", "2", "3"] 1번, 없음, 4번, 2번, 3번 점유중
+     ActionRoundCard에서 getPlayerId 구현필요.
+     **/
+    public ArrayList<String> sendMainBoardFamilyInfo(MainBoard mainBoard) {
+        ArrayList <String> sendToFront = new ArrayList<String>();
+        List<ActionRoundCard> actionCards = mainBoard.getActionCards();
+        for (ActionRoundCard card : actionCards) {
+            //카드에 플레이어있을때
+            if (card.isOccupied()) {
+                //String playerInfo = card.getPlayerId();
+                //sendToFront.add(playerInfo);
+            }
+            else
+                sendToFront.add("null");
+        }
+        //라운드카드
+        List<ActionRoundCard> roundCards = mainBoard.getRoundCards();
+        for (ActionRoundCard card : roundCards) {
+            //카드에 플레이어있을때
+            if (card.isOccupied()) {
+                String playerInfo = card.getPlayerId();
+                sendToFront.add(playerInfo);
+            }
+            else
+                sendToFront.add("null");
+        }
+        return sendToFront;
+        //카드마다 플레이어가 놓을수있는지없는지 전달.
+    }
 
+    /**
+     메인보드위의 카드들의 축적자원정보를 ArrayList<ArrayList<String>>으로 보내줌,
+     자원이 축적되는 칸일시 "[자원:개수, 자원2:개수] "축적되는 칸이아닐시 ["No Ack"] 자원관련칸이 아닌경우 ["null"]
+     ex) [[wood:1, clay:2], ["No ack"], [clay:2], ["null"]] 이런식으로 프론트에게 전달.
+     **/
+    public ArrayList<ArrayList<String>> sendMainBoardResourceInfo(MainBoard mainBoard) {
+        ArrayList <ArrayList<String>> sendToFront = new ArrayList<>();
+
+        List<ActionRoundCard> roundCards = mainBoard.getActionCards();
+        for (ActionRoundCard card : roundCards) {
+            ArrayList <String> resources = new ArrayList<>();
+            //축적칸일때
+            if (card.isAccumulative()) {
+                AccumulativeCard accCard = (AccumulativeCard) card;
+                HashMap<String, Integer> resource = (HashMap<String, Integer>) accCard.getAccumulatedResources();
+                for (Map.Entry<String, Integer> entry : resource.entrySet()) {
+                    String key = entry.getKey();
+                    String value = String.valueOf(entry.getValue());
+                    resources.add(key + ":" + value);
+                }
+            }
+            //자원축적칸이아닐때
+            else if (card.isResource()){
+                resources.add("wood:2");
+            }
+            //자원을 주는 칸이 아닐때
+            else {
+                resources.add("null");
+            }
+            sendToFront.add(resources);
+        }
+
+        return sendToFront;
+    }
+    /**
+     현재 플레이어가 놓을 수 있는 칸 정보 전달.
+     **/
+
+    /**
+     교환 가능한 카드 목록을 ArrayList<String>으로 보내줌.
+     교환 가능 카드인경우 "id", 불가능한경우 "x" + "id"
+     ex) ["1", "x", "3".... ]
+     **/
+    public ArrayList<String> sendMainBoardExchangableCardInfo(MainBoard mainBoard, Player player, ExchangeTiming timing) {
+        ArrayList <String> sendToFront = new ArrayList<>();
+        List<CommonCard> majorCards = mainBoard.getMajorImprovementCards();
+        ArrayList<CommonCard> majorImprovementCards = (ArrayList<CommonCard>) player.getMajorImprovementCards();
+        for (CommonCard card : majorImprovementCards) {
+            int id = card.getId();
+            //다운캐스팅 가능할때
+            if (card instanceof ExchangeableCard) {
+                ExchangeableCard exchangeableCard = (ExchangeableCard) card;
+                //현재 교환가능한 카드 일시
+                if (exchangeableCard.canExchange(timing)) {
+                    sendToFront.add("id");
+                }
+                else {
+                    sendToFront.add("x" + "id");
+                }
+            }
+        }
+        return sendToFront;
+    }
+    /**
+     구매할 수 있는 주 설비 카드 목록을 ArrayList<String>으로 보내줌.
+     구매가능한경우 "id", 불가능한경우 "x" + "id"
+     ex) ["1", "x", "3".... ]
+     **/
+    public ArrayList<String> sendMainBoardMajorImprovementInfo(MainBoard mainBoard) {
+        ArrayList <String> sendToFront = new ArrayList<>();
+        List<CommonCard> majorCards = mainBoard.getMajorImprovementCards();
+        for (CommonCard majorCard : majorCards) {
+            if (majorCard instanceof MajorImprovementCard && !((MajorImprovementCard) majorCard).isPurchased()) {
+                sendToFront.add(String.valueOf(majorCard.getId()));
+            }
+            else {
+                ((MajorImprovementCard) majorCard).isPurchased();
+                sendToFront.add("x"+ String.valueOf(majorCard.getId()));
+            }
+        }
+        return sendToFront;
+    }
 }

@@ -190,6 +190,7 @@ public class GameController {
                     if (!availableCards.isEmpty()) {
                         roundFinished = false;
                         System.out.println("Player " + player.getId() + "'s turn.");
+                        //프론트로부터 사용자 입력 받아야함->playerTurn으로.
                         playerTurn(player.getId());
 
                         printFamilyMembersOnBoard();
@@ -223,6 +224,7 @@ public class GameController {
 
             if (!availableCards.isEmpty()) {
                 Random rand = new Random();
+                //프론트로부터 사용자 입력받기.
                 ActionRoundCard selectedCard = availableCards.get(rand.nextInt(availableCards.size()));
 
                 // 여기서 액션카드, 라운드 카드의 효과를 발동
@@ -608,5 +610,71 @@ private void printFamilyMembersOnBoard() {
     public void setMainBoard(MainBoard mainBoard) {
         this.mainBoard = mainBoard;
         System.out.println("MainBoard set to: " + mainBoard);
+    }
+
+
+
+    /*****************************************************************/
+    public void setUpAvailableCards() {
+        for (Player player : players) {
+            List<ExchangeableCard> anytimeCards = player.getExchangeableCards(ExchangeTiming.ANYTIME);
+        }
+        System.out.println("Playing round " + currentRound);
+        boolean roundFinished = false;
+        while (!roundFinished) {
+            roundFinished = true;
+            for (Player player : turnOrder) {
+                // 성인, 신생아 구별해서 사용 가능한 가족 구성원이 있으면 플레이어에게 턴을 줌.
+                if (player.hasAvailableFamilyMembers()) {
+
+                    List<ActionRoundCard> availableCards = new ArrayList<>();
+                    availableCards.addAll(mainBoard.getActionCards());
+                    availableCards.addAll(mainBoard.getRevealedRoundCards());
+                    availableCards.removeIf(card -> mainBoard.isCardOccupied(card));
+
+                    if (!availableCards.isEmpty()) {
+                        roundFinished = false;
+                        System.out.println("Player " + player.getId() + "'s turn.");
+                        //프론트로부터 사용자 입력 받아야함->playerTurn으로.
+                        playerTurn(player.getId());
+
+                        printFamilyMembersOnBoard();
+                    } else {
+                        System.out.println("No available cards for player " + player.getId());
+                    }
+                }
+            }
+        }
+        resetFamilyMembers();
+    }
+    import org.springframework.messaging.handler.annotation.MessageMapping;
+    import org.springframework.messaging.handler.annotation.Payload;
+    import org.springframework.stereotype.Controller;
+
+    @Controller
+    public class WebSocketController {
+
+        @MessageMapping("/takePlaceFamilyInput")
+        public void takePlaceFamilyInput(@RequestBody PlaceFamilyInput messagePayload, Player player) {
+            String cardId = messagePayload.getCardId();
+            System.out.println("Extracted cardId: " + cardId);
+            CommonCard card = getCardByID(cardId);
+            if (card instanceof ActionRoundCard) {
+                player.placeFamilyMember((ActionRoundCard) card);
+            }
+
+        }
+    }
+    class PlaceFamilyInput {
+        private String roomId;
+        private String playerId;
+        private String cardId;
+
+
+        // 생성자, getter/setter 메서드 생략
+
+        public String getCardId() {
+            return cardId;
+        }
     }
 }
